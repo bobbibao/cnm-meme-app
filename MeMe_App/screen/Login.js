@@ -34,6 +34,10 @@ const Login = ({ navigation }) => {
       console.error("Invalid username or password");
     }
   };
+  const ForgotPass = () => {
+    navigation.navigate("ForgotPass");
+  };
+  
   return (
     <View
       style={{
@@ -97,12 +101,12 @@ const Login = ({ navigation }) => {
         <Text style={{ fontSize: 14, color: "#FFF" }}>Đăng nhập</Text>
         <AntDesign name="arrowright" size={24} color="white" />
       </Pressable>
-      <Pressable style={{ marginTop: 5 }}>
+      <Pressable onPress={() => ForgotPass()} style={{ marginTop: 5 }}>
         <Text style={{ color: "#508BE3" }}>Quên mật khẩu?</Text>
       </Pressable>
-      <View style={{flexDirection:"row", marginTop: 20}}>
+      <View style={{ flexDirection: "row", marginTop: 20 }}>
         <Text>Bạn chưa có tài khoản?</Text>
-        <Pressable style={{marginLeft: 50}}>
+        <Pressable style={{ marginLeft: 50 }}>
           <Text style={{ color: "#508BE3" }}>Đăng kí</Text>
         </Pressable>
       </View>
