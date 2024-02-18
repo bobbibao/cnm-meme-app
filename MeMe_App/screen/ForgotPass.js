@@ -6,7 +6,9 @@ const ForgotPass = ({ navigation }) => {
   const Back = () => {
     navigation.navigate("Login");
   };
-  
+  const Next = () => {
+    navigation.navigate("ForgotPass2");
+  };
   return (
     <View
       style={{
@@ -44,6 +46,7 @@ const ForgotPass = ({ navigation }) => {
           <Text style={{ color: "#508BE3" }}>Trở lại</Text>
         </Pressable>
         <Pressable
+          onPress={() => Next()}
           style={{
             width: 146,
             height: 36,
