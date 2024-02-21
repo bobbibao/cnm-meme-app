@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TextInput, Pressable } from "react-native";
+import { View, Text, Image, TextInput, Pressable, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 
 const url = "https://655683f184b36e3a431fd9be.mockapi.io/user";
 const Login = ({ navigation }) => {
+   const Login = () => {
+     navigation.navigate("Index");
+   };
   const [data, setData] = useState([]);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -13,6 +16,7 @@ const Login = ({ navigation }) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+
         return response.json();
       })
       .then((json) => {
@@ -86,8 +90,8 @@ const Login = ({ navigation }) => {
         }}
         placeholder="Nhập mật khẩu "
       />
-      <Pressable
-        onPress={() => handleLogin()}
+      <TouchableOpacity
+        onPress={() => Login()}
         style={{
           width: 146,
           height: 36,
@@ -100,7 +104,7 @@ const Login = ({ navigation }) => {
       >
         <Text style={{ fontSize: 14, color: "#FFF" }}>Đăng nhập</Text>
         <AntDesign name="arrowright" size={24} color="white" />
-      </Pressable>
+      </TouchableOpacity>
       <Pressable onPress={() => ForgotPass()} style={{ marginTop: 5 }}>
         <Text style={{ color: "#508BE3" }}>Quên mật khẩu?</Text>
       </Pressable>

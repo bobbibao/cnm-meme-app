@@ -7,6 +7,7 @@ import {
   Image,
   Pressable,
   TouchableOpacity,
+  Alert
 } from "react-native";
 import {
   CodeField,
@@ -28,9 +29,7 @@ export default function ForgotPass2({ navigation }) {
   });
 
   const handleSubmit = () => {
-    // TODO: add your logic to handle the confirmation code
-    // For example, you can call a function to verify the code
-    // or navigate to another screen
+    
     Alert.alert("Your confirmation code is " + value);
   };
   const Next = () => {
@@ -81,14 +80,17 @@ export default function ForgotPass2({ navigation }) {
               !symbol && { backgroundColor: "#fff" },
             ]}
           >
-            <Cursor />
-            {symbol || (isFocused ? <Cursor /> : null)}
+            <Text>
+              <Cursor />
+              {symbol ? <Text>{symbol}</Text> : isFocused && <Cursor />}
+            </Text>
           </View>
         )}
         onSubmitEditing={handleSubmit}
       />
+
       <Text>Bạn chưa nhận được?</Text>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => {}}>
         <Text
           style={{
             color: "#508BE3",
@@ -100,6 +102,7 @@ export default function ForgotPass2({ navigation }) {
           Gửi lại
         </Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         onPress={() => Next()}
         style={{

@@ -21,8 +21,8 @@ const ForgotPass = ({ navigation }) => {
         style={{ height: 325, width: 332.15, alignItems: "center" }}
       />
 
-      <Text style={{ marginLeft: -200, marginBottom: 20 }}>
-        <b>Đặt lại mật khẩu</b>
+      <Text style={{ marginLeft: -320, marginBottom: 20, fontWeight:"bold" }}>
+        Đặt lại mật khẩu
       </Text>
       <TextInput
         style={{

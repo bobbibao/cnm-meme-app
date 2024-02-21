@@ -6,6 +6,10 @@ import Login from "./screen/Login";
 import ForgotPass from "./screen/ForgotPass";
 import ForgotPass2 from "./screen/ForgotPass2";
 import ResetPass from "./screen/ResetPass";
+import HeaderIndex from "./screen/HeaderIndex";
+import Footer from "./screen/Footer";
+import Index from "./screen/Index";
+import AllPeople from "./screen/AllPeople";
 export default function App() {
   const Stack = createNativeStackNavigator();
   const MyTheme = {
@@ -26,6 +30,10 @@ export default function App() {
         <Stack.Screen name="ForgotPass" component={ForgotPass} />
         <Stack.Screen name="ForgotPass2" component={ForgotPass2} />
         <Stack.Screen name="ResetPass" component={ResetPass} />
+        <Stack.Screen name="HeaderIndex" component={HeaderIndex} />
+        <Stack.Screen name="Footer" component={Footer} />
+        <Stack.Screen name="Index" component={Index} />
+        <Stack.Screen name="AllPeople" component={AllPeople} />
       </Stack.Navigator>
     </NavigationContainer>
   );
