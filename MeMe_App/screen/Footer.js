@@ -17,6 +17,10 @@ export default Footer = ({ navigation }) => {
   const Index = () => {
     navigation.navigate("Index")
   }
+  const CallList = () => {
+    navigation.navigate("CallList");
+  };
+
   let footer__imgs = [
     "https://cdn-icons-png.freepik.com/512/273/273696.png",
     "https://www.pngitem.com/pimgs/b/207-2074266_video-call-icon-blue-video-call-icon-hd.png",
@@ -34,7 +38,7 @@ export default Footer = ({ navigation }) => {
           <Text style={{ marginTop: 5 }}>Đoạn Chat</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.touchable}>
+      <TouchableOpacity onPress={() => CallList()} style={styles.touchable}>
         <View style={styles.iconContainer}>
           <Image
             source={{ uri: footer__imgs[1] }}
