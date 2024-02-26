@@ -14,6 +14,7 @@ import CallList from "./screen/CallList";
 import FriendRequest from "./screen/FriendRequest";
 import SendFriendRequest from "./screen/SendFriendRequest";
 import OnlineChat from "./screen/OnlineChat";
+import CallTo from "./screen/CallTo";
 export default function App() {
   const Stack = createNativeStackNavigator();
   const MyTheme = {
@@ -27,7 +28,7 @@ export default function App() {
   return (
     <NavigationContainer theme={MyTheme}>
       <Stack.Navigator
-        initialRouteName="Index"
+        initialRouteName="CallTo"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Login" component={Login} />
@@ -42,6 +43,7 @@ export default function App() {
         <Stack.Screen name="FriendRequest" component={FriendRequest} />
         <Stack.Screen name="SendFriendRequest" component={SendFriendRequest} />
         <Stack.Screen name="OnlineChat" component={OnlineChat} />
+        <Stack.Screen name="CallTo" component={CallTo} />
       </Stack.Navigator>
     </NavigationContainer>
   );
