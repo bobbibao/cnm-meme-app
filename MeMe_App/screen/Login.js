@@ -7,6 +7,9 @@ const Login = ({ navigation }) => {
    const Login = () => {
      navigation.navigate("Index");
    };
+   const Register = () => {
+     navigation.navigate("Register");
+   };
   const [data, setData] = useState([]);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -110,7 +113,7 @@ const Login = ({ navigation }) => {
       </Pressable>
       <View style={{ flexDirection: "row", marginTop: 20 }}>
         <Text>Bạn chưa có tài khoản?</Text>
-        <Pressable style={{ marginLeft: 50 }}>
+        <Pressable onPress={() => Register()} style={{ marginLeft: 50 }}>
           <Text style={{ color: "#508BE3" }}>Đăng kí</Text>
         </Pressable>
       </View>
