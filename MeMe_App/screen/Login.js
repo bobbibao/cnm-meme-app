@@ -1,11 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, TextInput, Pressable, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import * as SecureStore from 'expo-secure-store';
+import {API_URL} from '@env';
 
+// import Contacts from 'react-native-contacts';
 const url = "https://655683f184b36e3a431fd9be.mockapi.io/user";
 const Login = ({ navigation }) => {
-   const Login = () => {
-     navigation.navigate("Index");
+   const Login = async () => {
+      fetch(API_URL+'/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          "email": "thuyduong@gmail.com",
+          "password": "123asd@A"
+        }),
+      }).then(response => response.json())
+      .then(async response => {
+        // console.log(response.token);
+        await SecureStore.setItemAsync('authToken', response.token);
+        const token = await SecureStore.getItemAsync('authToken');
+        console.log(token);
+        navigation.navigate("Index");
+      });
+    //  navigation.navigate("Index");
    };
    const Register = () => {
      navigation.navigate("Register");
@@ -29,7 +47,6 @@ const Login = ({ navigation }) => {
         console.error("Error fetching data:", error);
       });
   }, []);
-  console.log(data);
   const handleLogin = () => {
     const foundUser = data.find(
       (item) => item.userName === userName && item.password === password
@@ -44,7 +61,13 @@ const Login = ({ navigation }) => {
   const ForgotPass = () => {
     navigation.navigate("ForgotPass");
   };
-  
+  async function checkToken(){
+    const token = await SecureStore.getItemAsync('authToken');
+    return token;
+  }
+  if(checkToken){
+    navigation.navigate("Index");
+  }
   return (
     <View
       style={{
