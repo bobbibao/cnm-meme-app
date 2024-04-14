@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
   StyleSheet,
   Text,
@@ -11,8 +11,35 @@ import {
 } from "react-native";
 import AllPeople from "./AllPeople";
 import Index from "./Index";
+import * as SecureStore from 'expo-secure-store';
+import {API_URL} from '@env';
 
-const OnlineChat = ({ navigation }) => {
+const OnlineChat = ({navigation, route}) => {
+  const id = route.params;
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await SecureStore.getItemAsync('authToken');
+      console.log(token);
+      try {
+        const response = await fetch(API_URL+`/api/messages/${id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': token,
+          },
+        });
+        const res = await response.json();
+        setMessages(res.data);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+  
+    fetchData();
+  }, []);
+  const handleSubmit = async () => {
+    console.log('Submit');
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -45,68 +72,52 @@ const OnlineChat = ({ navigation }) => {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={{ flex: 1 }} inverted>
-        <SafeAreaView
-          style={{
-            flex: 1,
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-            marginRight: 5,
-            marginBottom: 5,
-            marginLeft: 5,
-          }}
-        >
-          <SafeAreaView style={{ flexDirection: "row" }}>
-            <Image
-              source={{
-                uri: "https://bizweb.dktcdn.net/100/438/408/files/anh-cho-meme-yody-vn9.jpg?v=1687918771459",
-              }}
-              style={{
-                height: 30,
-                width: 30,
-                borderRadius: 360,
-                marginRight: 10,
-              }}
-            />
-            <SafeAreaView
-              style={{
-                backgroundColor: "#76E3BD",
-                width: 60,
-                borderRadius: 10,
-                marginBottom: 20,
-                marginRight: 300,
-              }}
-            >
-              <SafeAreaView>
-                <Text style={{ fontSize: 18, textAlign: "center", padding: 3 }}>
-                  Hello
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: "#E7E7E7",
-                    marginLeft: 10,
+      <ScrollView contentContainerStyle={{paddingHorizontal: '1%'}} >
+
+      {messages && messages.map(message => (
+        <SafeAreaView style={{display: 'flex', flexDirection: 'row', justifyContent: `${message.sent? 'flex-start': 'flex-end'}`, width: "100%", marginVertical: '1%'}}>
+          <SafeAreaView style={{width: 'auto', height: "auto"}}>
+            <SafeAreaView style={{display: 'flex', flexDirection: 'row'}}>
+              {message.sent && (
+                <Image
+                  source={{
+                    // uri: "https://bizweb.dktcdn.net/100/438/408/files/anh-cho-meme-yody-vn9.jpg?v=1687918771459",
+                    uri: message.receiverPhoto
                   }}
-                >
-                  20:58
-                </Text>
+                  style={{
+                    height: 30,
+                    width: 30,
+                    borderRadius: "50%",
+                    marginRight: "2%"
+                  }}
+              />)}
+              <SafeAreaView
+                style={{
+                  backgroundColor: "#76E3BD",
+                  width: 'auto',
+                  borderRadius: 5,
+                  paddingHorizontal: 8,
+                  paddingVertical: 8,
+                }}>
+                  {message.type === "image" ? 
+                    <Image
+                      source={{ uri: message.media.url }}
+                      style={{width: 200, aspectRatio: 1, maxHeight: 300, borderRadius: 5, }}/> :
+                    <Text style={{ fontSize: 18, textAlign: "left" }}>
+                      {message.content.length < 5 
+                        ? message.content + ' '.repeat(10 - message.content.length) 
+                        : message.content}
+                    </Text>
+                  }
+                    <Text style={{paddingTop:5}}>
+                      {message.time}
+                    </Text>
               </SafeAreaView>
             </SafeAreaView>
           </SafeAreaView>
-          <SafeAreaView
-            style={{ backgroundColor: "#76E3BD", width: 90, borderRadius: 10 }}
-          >
-            <SafeAreaView>
-              <Text style={{ fontSize: 18, textAlign: "center", padding: 3 }}>
-                Xin chào
-              </Text>
-              <Text style={{ fontSize: 11, color: "#E7E7E7", marginLeft: 10 }}>
-                21:00
-              </Text>
-            </SafeAreaView>
-          </SafeAreaView>
-          <Text>Đã nhận</Text>
         </SafeAreaView>
+          
+      ))}
       </ScrollView>
 
       <View
@@ -123,6 +134,7 @@ const OnlineChat = ({ navigation }) => {
             flexDirection: "row",
             width: "20%",
             justifyContent: "flex-end",
+            alignItems: "center"
           }}
         >
           <TouchableOpacity>
@@ -134,8 +146,13 @@ const OnlineChat = ({ navigation }) => {
           <TouchableOpacity>
             <Image
               source={require("../assets/image.png")}
-              style={{ height: 35, width: 35 }}
+               style={{ marginTop: 5, marginRight: 20, height: 25, width: 35 }}
             />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleSubmit}>
+            <Text>
+              submit
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -146,7 +163,6 @@ const OnlineChat = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex:1,
-    marginTop: 50,
     backgroundColor: "#F1FFFA",
   },
   header: {
