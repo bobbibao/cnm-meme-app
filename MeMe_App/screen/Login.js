@@ -12,8 +12,8 @@ const Login = ({ navigation }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify({
-          "email": "thuyduong@gmail.com",
-          "password": "123asd@A"
+          "email": userName,
+          "password": password,
         }),
       }).then(response => response.json())
       .then(async response => {
@@ -61,13 +61,13 @@ const Login = ({ navigation }) => {
   const ForgotPass = () => {
     navigation.navigate("ForgotPass");
   };
-  async function checkToken(){
-    const token = await SecureStore.getItemAsync('authToken');
-    return token;
-  }
-  if(checkToken){
-    navigation.navigate("Index");
-  }
+  // async function checkToken(){
+  //   const token = await SecureStore.getItemAsync('authToken');
+  //   return token;
+  // }
+  // if(checkToken){
+  //   navigation.navigate("Index");
+  // }
   return (
     <View
       style={{

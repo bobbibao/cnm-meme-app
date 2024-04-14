@@ -74,8 +74,9 @@ const OnlineChat = ({navigation, route}) => {
 
       <ScrollView contentContainerStyle={{paddingHorizontal: '1%'}} >
 
-      {messages && messages.map(message => (
-        <SafeAreaView style={{display: 'flex', flexDirection: 'row', justifyContent: `${message.sent? 'flex-start': 'flex-end'}`, width: "100%", marginVertical: '1%'}}>
+      {messages && messages.map((message, index) => (
+        console.log(message),
+        <SafeAreaView key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: `${message.sent? 'flex-start': 'flex-end'}`, width: "100%", marginVertical: '1%'}}>
           <SafeAreaView style={{width: 'auto', height: "auto"}}>
             <SafeAreaView style={{display: 'flex', flexDirection: 'row'}}>
               {message.sent && (
