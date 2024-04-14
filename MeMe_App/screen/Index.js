@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import {
   StyleSheet,
   Text,
@@ -11,6 +11,8 @@ import {
 import HeaderIndex from "./HeaderIndex";
 import Footer from "./Footer";
 import OnlineChat from "./OnlineChat";
+import * as SecureStore from 'expo-secure-store';
+import {API_URL} from '@env';
 
 const Index = ({ navigation }) => {
   
@@ -47,30 +49,41 @@ const Index = ({ navigation }) => {
   };
 
   const userNames = generateUserNames();
-const OnlineChat = () => {
-  navigation.navigate("OnlineChat");
-};
+  const OnlineChat = (idChatRoom) => {
+    navigation.navigate("OnlineChat", idChatRoom);
+  };
+const [userInfo, setUserInfo] = useState([]);
+useEffect(async () => {
+  const token = await SecureStore.getItemAsync('authToken');
+    fetch(API_URL+"/api/info-chat-item/", {
+      headers: {
+        'Authorization': token
+      }
+    }).then((response) => response.json()).then((res) => {
+      setUserInfo(res.data);
+    });
+}, []);
   return (
     <SafeAreaView style={styles.container}>
       <HeaderIndex navigation={navigation} />
       <ScrollView showsVerticalScrollIndicator={true}>
-        {userNames.map((userName, index) => (
+        {userInfo.map((user, index) => (
           <TouchableOpacity
-            onPress={() => OnlineChat()}
+            onPress={() => OnlineChat(user.idChatRoom)}
             key={index}
             style={styles.touchChat}
           >
             <Image
-              source={{ uri: indexImgs[index % indexImgs.length] }}
+              source={{uri: user.photoURL? user.photoURL: "https://i.imgur.com/rsJjBcH.png"}}
               style={styles.avatar}
             />
             <View style={styles.chatContainer}>
               <View>
-                <Text style={styles.userName}>{userName}</Text>
-                <Text style={styles.chatContent}>Ok bài này 10 điểm</Text>
+                <Text style={styles.userName}>{user.name}</Text>
+                <Text style={styles.chatContent}>{user.lastMessage.text}</Text>
               </View>
               <View style={styles.timeContainer}>
-                <Text>2 giờ</Text>
+                <Text>{user.lastMessage.time}</Text>
               </View>
             </View>
           </TouchableOpacity>

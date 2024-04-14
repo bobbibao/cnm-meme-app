@@ -15,7 +15,9 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "infoPlist": {
+          "NSContactsUsageDescription": "Chúng tôi cần truy cập danh bạ của bạn để cung cấp các tính năng liên quan đến chat."
+      }
     },
     "android": {
       "adaptiveIcon": {
