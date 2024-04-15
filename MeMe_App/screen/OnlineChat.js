@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {
   StyleSheet,
   Text,
@@ -17,6 +17,7 @@ import {API_URL} from '@env';
 const OnlineChat = ({navigation, route}) => {
   const id = route.params;
   const [messages, setMessages] = useState([]);
+  const scrollViewRef = useRef();
   useEffect(() => {
     const fetchData = async () => {
       const token = await SecureStore.getItemAsync('authToken');
@@ -38,7 +39,7 @@ const OnlineChat = ({navigation, route}) => {
   }, []);
   const handleSubmit = async () => {
     console.log('Submit');
-  }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -71,7 +72,10 @@ const OnlineChat = ({navigation, route}) => {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={{paddingHorizontal: '1%'}} >
+      <ScrollView
+        ref={scrollViewRef} 
+        onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+        contentContainerStyle={{paddingHorizontal: '1%'}}>
 
       {messages && messages.map((message, index) => (
         console.log(message),
