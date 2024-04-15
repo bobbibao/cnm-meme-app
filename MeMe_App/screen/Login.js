@@ -20,7 +20,6 @@ const Login = ({ navigation }) => {
         // console.log(response.token);
         await SecureStore.setItemAsync('authToken', response.token);
         const token = await SecureStore.getItemAsync('authToken');
-        console.log(token);
         navigation.navigate("Index");
       });
     //  navigation.navigate("Index");

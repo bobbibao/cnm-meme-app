@@ -20,7 +20,6 @@ const OnlineChat = ({navigation, route}) => {
   useEffect(() => {
     const fetchData = async () => {
       const token = await SecureStore.getItemAsync('authToken');
-      console.log(token);
       try {
         const response = await fetch(API_URL+`/api/messages/${id}`, {
           method: 'GET',
@@ -83,7 +82,7 @@ const OnlineChat = ({navigation, route}) => {
                 <Image
                   source={{
                     // uri: "https://bizweb.dktcdn.net/100/438/408/files/anh-cho-meme-yody-vn9.jpg?v=1687918771459",
-                    uri: message.receiverPhoto
+                    uri: message.receiverPhoto? message.receiverPhoto: "https://i.imgur.com/rsJjBcH.png"
                   }}
                   style={{
                     height: 30,
