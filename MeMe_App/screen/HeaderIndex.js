@@ -45,7 +45,14 @@ export default HeaderIndex = ({ navigation }) => {
       </View>
       <View style={styles.row2}>
         <Image source={{ uri: header__imgs[1] }} style={styles.icon} />
-        <TextInput placeholder="Search" style={{ width: 341, marginLeft: 10}}></TextInput>
+        <TextInput placeholder="Search" style={{ width: 341, 
+            marginLeft: 10,
+            height: 40,
+            borderColor: '#00AE72', 
+            borderWidth: 1,
+            borderRadius: 20,
+            paddingLeft: 20,
+            color: '#333'}}></TextInput>
       </View>
     </SafeAreaView>
   );
@@ -77,7 +84,6 @@ const styles = StyleSheet.create({
   row2: {
     flexDirection: "row",
     marginTop: 5,
-    backgroundColor: "#D9D9D9",
     marginLeft: 15,
     marginRight: 15,
     height: 40
@@ -93,6 +99,8 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     marginTop: 6,
-    marginLeft: 5
+    marginLeft: 5,
+    backfaceVisibility: "hidden",
+    opacity: 0.7
   },
 });
