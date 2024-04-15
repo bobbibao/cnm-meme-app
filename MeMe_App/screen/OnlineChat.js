@@ -13,13 +13,16 @@ import AllPeople from "./AllPeople";
 import Index from "./Index";
 import * as SecureStore from 'expo-secure-store';
 import {API_URL} from '@env';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 const OnlineChat = ({navigation, route}) => {
   const id = route.params;
   const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState('');
   const scrollViewRef = useRef();
   useEffect(() => {
     const fetchData = async () => {
+      console.log(API_URL);
       const token = await SecureStore.getItemAsync('authToken');
       try {
         const response = await fetch(API_URL+`/api/messages/${id}`, {
@@ -41,7 +44,10 @@ const OnlineChat = ({navigation, route}) => {
     console.log('Submit');
   };
   return (
-    <SafeAreaView style={styles.container}>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+      style={styles.container}>
+      <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
@@ -124,13 +130,13 @@ const OnlineChat = ({navigation, route}) => {
       ))}
       </ScrollView>
 
-      <View
-        style={{ backgroundColor: "#fff", padding: 11, flexDirection: "row" }}
-      >
+      <View style={{ backgroundColor: "#fff", padding: 11, flexDirection: "row" }}>
         <View style={{ width: "80%" }}>
           <TextInput
             placeholder="Tin nhắn"
             style={{ fontSize: 20 }}
+            value={message}
+            onChangeText={text => setMessage(text)}
           ></TextInput>
         </View>
         <View
@@ -141,7 +147,8 @@ const OnlineChat = ({navigation, route}) => {
             alignItems: "center"
           }}
         >
-          <TouchableOpacity>
+          {!message?
+          <><TouchableOpacity>
             <Image
               source={require("../assets/micro.png")}
               style={{ marginTop: 5, marginRight: 20, height: 25, width: 17 }}
@@ -152,15 +159,17 @@ const OnlineChat = ({navigation, route}) => {
               source={require("../assets/image.png")}
                style={{ marginTop: 5, marginRight: 20, height: 25, width: 35 }}
             />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleSubmit}>
-            <Text>
-              submit
+          </TouchableOpacity></>
+          :<TouchableOpacity onPress={handleSubmit}>
+            <Text style={{fontSize: 20}}>
+              Send
             </Text>
           </TouchableOpacity>
+          }
         </View>
       </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -172,12 +181,14 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     backgroundColor: "#00AE72",
-    padding: 5,
+    padding: 10,
+    paddingTop: 20,
     alignItems: "center",
+    marginTop: -20,
   },
   backButton: {
-    height: 40,
-    width: 40,
+    width: 30,
+    height: 30,
   },
   userInfo: {
     flex: 1,
