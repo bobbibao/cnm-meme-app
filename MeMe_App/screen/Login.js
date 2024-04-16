@@ -8,6 +8,9 @@ import {API_URL} from '@env';
 const url = "https://655683f184b36e3a431fd9be.mockapi.io/user";
 const Login = ({ navigation }) => {
    const Login = async () => {
+      // this comment for testing purposes only the login (Không cần phải nhập lại tk, mk) 
+      // const token = await SecureStore.getItemAsync('authToken');
+      // if(token) navigation.navigate("Index");
       fetch(API_URL+'/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
@@ -17,9 +20,9 @@ const Login = ({ navigation }) => {
         }),
       }).then(response => response.json())
       .then(async response => {
-        // console.log(response.token);
+        console.log(response);
         await SecureStore.setItemAsync('authToken', response.token);
-        const token = await SecureStore.getItemAsync('authToken');
+        await SecureStore.setItemAsync('userId', response._id);
         navigation.navigate("Index");
       });
     //  navigation.navigate("Index");
