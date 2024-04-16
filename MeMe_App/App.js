@@ -3,8 +3,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StyleSheet } from "react-native";
 
 import Login from "./screen/Login";
-import ForgotPass from "./screen/ForgotPass";
-import ForgotPass2 from "./screen/ForgotPass2";
+import SendOtp from "./screen/SendOtp";
+import Verify from "./screen/Verify";
 import ResetPass from "./screen/ResetPass";
 import HeaderIndex from "./screen/HeaderIndex";
 import Footer from "./screen/Footer";
@@ -15,7 +15,10 @@ import FriendRequest from "./screen/FriendRequest";
 import SendFriendRequest from "./screen/SendFriendRequest";
 import OnlineChat from "./screen/OnlineChat";
 import CallTo from "./screen/CallTo";
-import Register from "./screen/Register"
+import Register from "./screen/Register";
+import SendResetPasswordOTP from "./screen/SendResetPasswordOTP";
+import VerifyResetPasswordOTP from "./screen/VerifyResetPasswordOTP";
+import UpdatePassword from "./screen/UpdatePassword";
 export default function App() {
   const Stack = createNativeStackNavigator();
   const MyTheme = {
@@ -33,8 +36,8 @@ export default function App() {
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="ForgotPass" component={ForgotPass} />
-        <Stack.Screen name="ForgotPass2" component={ForgotPass2} />
+        <Stack.Screen name="SendOtp" component={SendOtp} />
+        <Stack.Screen name="Verify" component={Verify} />
         <Stack.Screen name="ResetPass" component={ResetPass} />
         <Stack.Screen name="HeaderIndex" component={HeaderIndex} />
         <Stack.Screen name="Footer" component={Footer} />
@@ -46,6 +49,15 @@ export default function App() {
         <Stack.Screen name="OnlineChat" component={OnlineChat} />
         <Stack.Screen name="CallTo" component={CallTo} />
         <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen
+          name="SendResetPasswordOTP"
+          component={SendResetPasswordOTP}
+        />
+        <Stack.Screen
+          name="VerifyResetPasswordOTP"
+          component={VerifyResetPasswordOTP}
+        />
+        <Stack.Screen name="UpdatePassword" component={UpdatePassword} />
       </Stack.Navigator>
     </NavigationContainer>
   );
