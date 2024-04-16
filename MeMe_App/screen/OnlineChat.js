@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {
   StyleSheet,
   Text,
@@ -17,10 +17,10 @@ import {API_URL} from '@env';
 const OnlineChat = ({navigation, route}) => {
   const id = route.params;
   const [messages, setMessages] = useState([]);
+  const scrollViewRef = useRef();
   useEffect(() => {
     const fetchData = async () => {
       const token = await SecureStore.getItemAsync('authToken');
-      console.log(token);
       try {
         const response = await fetch(API_URL+`/api/messages/${id}`, {
           method: 'GET',
@@ -39,7 +39,7 @@ const OnlineChat = ({navigation, route}) => {
   }, []);
   const handleSubmit = async () => {
     console.log('Submit');
-  }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -72,7 +72,10 @@ const OnlineChat = ({navigation, route}) => {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={{paddingHorizontal: '1%'}} >
+      <ScrollView
+        ref={scrollViewRef} 
+        onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+        contentContainerStyle={{paddingHorizontal: '1%'}}>
 
       {messages && messages.map((message, index) => (
         console.log(message),
@@ -83,7 +86,7 @@ const OnlineChat = ({navigation, route}) => {
                 <Image
                   source={{
                     // uri: "https://bizweb.dktcdn.net/100/438/408/files/anh-cho-meme-yody-vn9.jpg?v=1687918771459",
-                    uri: message.receiverPhoto
+                    uri: message.receiverPhoto? message.receiverPhoto: "https://i.imgur.com/rsJjBcH.png"
                   }}
                   style={{
                     height: 30,

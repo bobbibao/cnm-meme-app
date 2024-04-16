@@ -7,8 +7,29 @@ import {API_URL} from '@env';
 // import Contacts from 'react-native-contacts';
 
 const Login = ({ navigation }) => {
-  
-  const [email, setEmail] = useState("");
+   const Login = async () => {
+      fetch(API_URL+'/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          "email": userName,
+          "password": password,
+        }),
+      }).then(response => response.json())
+      .then(async response => {
+        // console.log(response.token);
+        await SecureStore.setItemAsync('authToken', response.token);
+        const token = await SecureStore.getItemAsync('authToken');
+        console.log(token);
+        navigation.navigate("Index");
+      });
+    //  navigation.navigate("Index");
+   };
+   const Register = () => {
+     navigation.navigate("Register");
+   };
+  const [data, setData] = useState([]);
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
 const login = async () => {

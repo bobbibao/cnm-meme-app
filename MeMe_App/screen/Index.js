@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import HeaderIndex from "./HeaderIndex";
 import Footer from "./Footer";
-import OnlineChat from "./OnlineChat";
 import * as SecureStore from 'expo-secure-store';
 import {API_URL} from '@env';
 
@@ -53,7 +52,8 @@ const Index = ({ navigation }) => {
     navigation.navigate("OnlineChat", idChatRoom);
   };
 const [userInfo, setUserInfo] = useState([]);
-useEffect(async () => {
+useEffect(() => {
+  const fetchData = async () =>{
   const token = await SecureStore.getItemAsync('authToken');
     fetch(API_URL+"/api/info-chat-item/", {
       headers: {
@@ -62,6 +62,8 @@ useEffect(async () => {
     }).then((response) => response.json()).then((res) => {
       setUserInfo(res.data);
     });
+  }
+  fetchData();
 }, []);
   return (
     <SafeAreaView style={styles.container}>
