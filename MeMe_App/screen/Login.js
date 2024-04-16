@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 import {API_URL} from '@env';
 
 // import Contacts from 'react-native-contacts';
-const url = "https://655683f184b36e3a431fd9be.mockapi.io/user";
+
 const Login = ({ navigation }) => {
    const Login = async () => {
       // this comment for testing purposes only the login (Không cần phải nhập lại tk, mk) 
@@ -33,43 +33,45 @@ const Login = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  useEffect(() => {
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
 
-        return response.json();
-      })
-      .then((json) => {
-        setData(json);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }, []);
-  const handleLogin = () => {
-    const foundUser = data.find(
-      (item) => item.userName === userName && item.password === password
-    );
-    if (foundUser) {
-      console.log(foundUser);
-      navigation.navigate("Index", { foundUser });
-    } else {
-      console.error("Invalid username or password");
+const login = async () => {
+  if (!email || !password) {
+    alert("Vui lòng không để trống email hoặc mật khẩu");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://192.168.1.13:3000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error(responseData);
+      throw new Error(
+        `Đăng nhập không thành công, sai thông tin. Mã lỗi: ${
+          response.status
+        }, Thông điệp: ${responseData.message || ""}`
+      );
     }
-  };
+
+    console.log(responseData); // In dữ liệu phản hồi từ server
+    navigation.navigate("Index"); // Điều hướng sau khi đăng nhập thành công
+  } catch (error) {
+    console.error(`Lỗi: ${error.message}`);
+    alert(`Đăng nhập không thành công! Lỗi: ${error.message}`);
+  }
+};
+
   const ForgotPass = () => {
     navigation.navigate("ForgotPass");
   };
-  // async function checkToken(){
-  //   const token = await SecureStore.getItemAsync('authToken');
-  //   return token;
-  // }
-  // if(checkToken){
-  //   navigation.navigate("Index");
-  // }
+
   return (
     <View
       style={{
@@ -89,7 +91,7 @@ const Login = ({ navigation }) => {
         }}
       ></View>
       <TextInput
-        onChangeText={setUserName}
+        onChangeText={setEmail}
         style={{
           width: "80%",
           height: 60,
@@ -119,7 +121,7 @@ const Login = ({ navigation }) => {
         placeholder="Nhập mật khẩu "
       />
       <TouchableOpacity
-        onPress={() => Login()}
+        onPress={login}
         style={{
           width: 146,
           height: 36,
@@ -138,7 +140,7 @@ const Login = ({ navigation }) => {
       </Pressable>
       <View style={{ flexDirection: "row", marginTop: 20 }}>
         <Text>Bạn chưa có tài khoản?</Text>
-        <Pressable onPress={() => Register()} style={{ marginLeft: 50 }}>
+        <Pressable onPress={() => ForgotPass()} style={{ marginLeft: 50 }}>
           <Text style={{ color: "#508BE3" }}>Đăng kí</Text>
         </Pressable>
       </View>
