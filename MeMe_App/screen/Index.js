@@ -12,9 +12,27 @@ import HeaderIndex from "./HeaderIndex";
 import Footer from "./Footer";
 import * as SecureStore from 'expo-secure-store';
 import {API_URL} from '@env';
+import io from 'socket.io-client';
+let socket;
 
 const Index = ({ navigation }) => {
-  
+  const setupSocket = async () => {
+    socket = io(API_URL);
+    socket.on("connection", ()=>{
+      console.log("Socket connected");
+    })
+    const userId = await SecureStore.getItemAsync("userId");
+    socket.emit("setup", `"${userId}"`);
+    socket.on("setup", (user) => {
+      console.log("setup", user);
+    })
+  }
+  useEffect( () => {
+    setupSocket();
+    return () => {
+      socket.disconnect();
+    }
+  }, []);
   const indexImgs = [
     "https://top10binhphuoc.vn/wp-content/uploads/2022/10/avatar-gau-cute-1.jpg",
     "https://anhdephd.vn/wp-content/uploads/2022/04/avatar-gau-1.jpg",
@@ -54,6 +72,7 @@ const Index = ({ navigation }) => {
 const [userInfo, setUserInfo] = useState([]);
 useEffect(() => {
   const fetchData = async () =>{
+  console.log(API_URL);
   const token = await SecureStore.getItemAsync('authToken');
     fetch(API_URL+"/api/info-chat-item/", {
       headers: {
@@ -65,6 +84,7 @@ useEffect(() => {
   }
   fetchData();
 }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <HeaderIndex navigation={navigation} />
