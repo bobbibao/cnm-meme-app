@@ -7,15 +7,16 @@ import {API_URL} from '@env';
 // import Contacts from 'react-native-contacts';
 
 const Login = ({ navigation }) => {
-   const Login = async () => {
+   const loginBobbi = async () => {
       // this comment for testing purposes only the login (Không cần phải nhập lại tk, mk) 
       // const token = await SecureStore.getItemAsync('authToken');
       // if(token) navigation.navigate("Index");
+      console.log(API_URL);
       fetch(API_URL+'/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify({
-          "email": userName,
+          "email": email,
           "password": password,
         }),
       }).then(response => response.json())
@@ -31,7 +32,7 @@ const Login = ({ navigation }) => {
      navigation.navigate("Register");
    };
   const [data, setData] = useState([]);
-  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
 const login = async () => {
@@ -121,7 +122,7 @@ const login = async () => {
         placeholder="Nhập mật khẩu "
       />
       <TouchableOpacity
-        onPress={login}
+        onPress={loginBobbi}
         style={{
           width: 146,
           height: 36,
