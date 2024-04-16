@@ -16,6 +16,32 @@ import { FontAwesome } from "@expo/vector-icons";
 
 const Login = ({ navigation }) => {
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+   const loginBobbi = async () => {
+      // this comment for testing purposes only the login (Không cần phải nhập lại tk, mk) 
+      // const token = await SecureStore.getItemAsync('authToken');
+      // if(token) navigation.navigate("Index");
+      console.log(API_URL);
+      fetch(API_URL+'/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          "email": email,
+          "password": password,
+        }),
+      }).then(response => response.json())
+      .then(async response => {
+        console.log(response);
+        await SecureStore.setItemAsync('authToken', response.token);
+        await SecureStore.setItemAsync('userId', response._id);
+        navigation.navigate("Index");
+      });
+    //  navigation.navigate("Index");
+   };
+   const Register = () => {
+     navigation.navigate("Register");
+   };
+  const [data, setData] = useState([]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const login = async () => {
@@ -105,6 +131,7 @@ const Login = ({ navigation }) => {
         placeholder="Nhập mật khẩu "
       />
       <TouchableOpacity
+
         onPress={() => setSecureTextEntry((prev) => !prev)} // Thêm nút này
         style={{ paddingRight: 15 }}
       >
@@ -116,6 +143,7 @@ const Login = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity
         onPress={login}
+
         style={{
           width: 146,
           height: 36,
