@@ -71,14 +71,13 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    height: 150,
+    height: 100,
     color: "hsl(0,0%,96.86%)",
-    borderBottomColor: "rgba(0, 0, 0, 0.3)",
+    borderBottomColor: "#00AE72",
     borderBottomWidth: 1,
   },
   row1: {
     flexDirection: "row",
-    marginTop: 50,
     width: "100%",
   },
   row2: {

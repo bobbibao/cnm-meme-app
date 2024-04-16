@@ -15,7 +15,7 @@ export default Footer = ({ navigation }) => {
     navigation.navigate("AllPeople");
   };
   const Index = () => {
-    navigation.navigate("Index")
+    navigation.navigate("Index", { reload: Date.now() })
   }
   const CallList = () => {
     navigation.navigate("CallList");

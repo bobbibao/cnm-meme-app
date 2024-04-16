@@ -15,14 +15,16 @@ import * as SecureStore from 'expo-secure-store';
 import {API_URL} from '@env';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 
+
 const OnlineChat = ({navigation, route}) => {
-  const id = route.params;
+  const id = route.params.idChatRoom;
+  const socket = route.params.socket;
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const scrollViewRef = useRef();
   useEffect(() => {
     const fetchData = async () => {
-      console.log(API_URL);
+      // console.log(API_URL);
       const token = await SecureStore.getItemAsync('authToken');
       try {
         const response = await fetch(API_URL+`/api/messages/${id}`, {
@@ -41,8 +43,39 @@ const OnlineChat = ({navigation, route}) => {
     fetchData();
   }, []);
   const handleSubmit = async () => {
-    console.log('Submit');
+    const token = await SecureStore.getItemAsync('authToken');
+    const data = {
+      chatRoomId: id,
+      senderId: `"${await SecureStore.getItemAsync('userId')}"`,
+      content: message,
+      type: 'text',
+    }
+    const response = await fetch(API_URL+`/api/messages/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token,
+      },
+      body: JSON.stringify({data: data}),
+    });
+    const res = await response.json();
+    socket.emit("message", data, res.data._id);
+    setMessage('');
   };
+  socket.on("message", async (message) => {
+    const newMessage = {
+      id: message.id,
+      content: message.content,
+      sent: message.senderId === await SecureStore.getItemAsync('userId'),
+      time: message.time,
+      type: message.type,
+      media: message.media,
+      receiverPhoto: messages[0].receiverPhoto
+    }
+    // console.log(newMessage);
+    setMessages([...messages, newMessage]);
+  });
+
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === "ios" ? "padding" : "height"} 
@@ -84,11 +117,10 @@ const OnlineChat = ({navigation, route}) => {
         contentContainerStyle={{paddingHorizontal: '1%'}}>
 
       {messages && messages.map((message, index) => (
-        console.log(message),
-        <SafeAreaView key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: `${message.sent? 'flex-start': 'flex-end'}`, width: "100%", marginVertical: '1%'}}>
+        <SafeAreaView key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: `${message.sent? 'flex-end': 'flex-start'}`, width: "100%", marginVertical: '1%'}}>
           <SafeAreaView style={{width: 'auto', height: "auto"}}>
             <SafeAreaView style={{display: 'flex', flexDirection: 'row'}}>
-              {message.sent && (
+              {!message.sent && (
                 <Image
                   source={{
                     // uri: "https://bizweb.dktcdn.net/100/438/408/files/anh-cho-meme-yody-vn9.jpg?v=1687918771459",
@@ -97,7 +129,7 @@ const OnlineChat = ({navigation, route}) => {
                   style={{
                     height: 30,
                     width: 30,
-                    borderRadius: "50%",
+                    borderRadius: 360,
                     marginRight: "2%"
                   }}
               />)}
