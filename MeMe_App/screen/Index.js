@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {
   StyleSheet,
   Text,
@@ -7,15 +7,31 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Platform
 } from "react-native";
 import HeaderIndex from "./HeaderIndex";
 import Footer from "./Footer";
 import * as SecureStore from 'expo-secure-store';
 import {API_URL} from '@env';
 import io from 'socket.io-client';
-let socket;
+import { AppRegistry } from 'react-native';
+import App from '../App';
+import { name as appName } from '../app.json';
 
-const Index = ({ navigation }) => {
+AppRegistry.registerComponent(appName, () => App);
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+
+let socket;
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+const Index = ({ navigation, route }) => {
+  const [userInfo, setUserInfo] = useState([]);
   const setupSocket = async () => {
     socket = io(API_URL);
     socket.on("connection", ()=>{
@@ -61,15 +77,22 @@ const Index = ({ navigation }) => {
     "Trần Văn Bình",
   ];
 
-  const generateUserNames = () => {
-    return names.map((name) => name);
+  const OnlineChat = async (idChatRoom) => {
+    const userId = await SecureStore.getItemAsync("userId");
+    socket.emit('join chat', idChatRoom, `"${userId}"`);
+    socket.on('join chat', (room)=>{
+      console.log("joined",room);
+    });
+    socket.on("message", (message)=>{
+      userId != message.senderId && schedulePushNotification("Thuy Duong", message.content);
+      const index = userInfo.findIndex((user) => user.idChatRoom === idChatRoom);
+      userInfo[index].lastMessage.text = message.content;
+      userInfo[index].lastMessage.time = message.time;
+      setUserInfo([...userInfo]);
+    });
+    navigation.navigate("OnlineChat", {idChatRoom, socket});
   };
-
-  const userNames = generateUserNames();
-  const OnlineChat = (idChatRoom) => {
-    navigation.navigate("OnlineChat", idChatRoom);
-  };
-const [userInfo, setUserInfo] = useState([]);
+// const [lastMessage, setLastMessage] = useState([]);
 useEffect(() => {
   const fetchData = async () =>{
   console.log(API_URL);
@@ -83,12 +106,32 @@ useEffect(() => {
     });
   }
   fetchData();
-}, []);
+}, [route.params?.reload]);
+const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <HeaderIndex navigation={navigation} />
-      <ScrollView showsVerticalScrollIndicator={true}>
+      <ScrollView showsVerticalScrollIndicator={true} style={{padding: 10}}>
         {userInfo.map((user, index) => (
           <TouchableOpacity
             onPress={() => OnlineChat(user.idChatRoom)}
@@ -115,6 +158,52 @@ useEffect(() => {
     </SafeAreaView>
   );
 };
+
+async function schedulePushNotification(name, content) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: name,
+      body: content,
+      data: { data: 'goes here' },
+      sound: 'default',
+    },
+    trigger: { seconds: 1 },
+  });
+}
+
+async function registerForPushNotificationsAsync() {
+  let token;
+
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+    // Learn more about projectId:
+    // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
+    token = (await Notifications.getExpoPushTokenAsync({ projectId: 'your-project-id' })).data;
+    console.log(token);
+  } else {
+    alert('Must use physical device for Push Notifications');
+  }
+
+  return token;
+}
 
 const styles = StyleSheet.create({
   container: {
