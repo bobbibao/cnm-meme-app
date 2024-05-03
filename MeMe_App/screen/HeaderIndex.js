@@ -22,15 +22,15 @@ export default HeaderIndex = ({ navigation }) => {
     <SafeAreaView style={[styles.header]}>
       <View style={[styles.row1, styles.f__center, styles.f__sb]}>
         <View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.header__item}
             onPress={() => navigation.toggleDrawer()}
           >
             <Image source={{ uri: header__imgs[0] }} style={styles.icon} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 20, color: "#00AE72", fontWeight: "bold" }}>
+          <Text style={{ fontSize: 20, color: "#00AE72", fontWeight: "bold", marginLeft: 50 }}>
             Đoạn chat
           </Text>
         </View>
