@@ -16,7 +16,7 @@ import {
 } from "react-native-confirmation-code-field";
 import { API_URL } from "@env";
 import Toast from "react-native-toast-message";
-
+ 
 const CELL_COUNT = 6;
 const CELL_SIZE = 50;
 const CELL_MARGIN = 5;

@@ -13,7 +13,7 @@ import {
 const FriendRequest = ({ navigation }) => {
   const Back = () => {
     navigation.navigate("AllPeople");
-  };
+  }; 
   const SendFriendRequest = () => {
     navigation.navigate("SendFriendRequest");
   };
@@ -40,13 +40,13 @@ const FriendRequest = ({ navigation }) => {
   ];
 
   const generateUserNames = () => {
-    return names.map((name) => name);
+    return names?.map((name) => name);
   };
 
   const userNames = generateUserNames();
 
   const renderFriendRequest = () => {
-    return friendRequest_imgs.map((img, index) => (
+    return friendRequest_imgs?.map((img, index) => (
       <View style={styles.user} key={index}>
         <View style={styles.profile}>
           <Image source={{ uri: img }} style={styles.avatar} />
