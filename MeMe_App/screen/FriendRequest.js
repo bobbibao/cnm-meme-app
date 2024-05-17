@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,60 +9,201 @@ import {
   SafeAreaView,
   Pressable,
 } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import { API_URL } from "@env";
+import { useNavigation } from "@react-navigation/native";
+
+
 
 const FriendRequest = ({ navigation }) => {
-  const Back = () => {
-    navigation.navigate("AllPeople");
-  }; 
-  const SendFriendRequest = () => {
-    navigation.navigate("SendFriendRequest");
-  };
-  let friendRequest_imgs = [
-    "https://i.imgur.com/tlB6Vdr.jpg",
-    "https://i.imgur.com/10cfqIq.jpg?1",
-    "https://cdn.alongwalk.info/vn/wp-content/uploads/2022/03/25120742/image-meo-chup-anh-dep-nhu-sao-han-de-co-duoc-buc-hinh-nghin-like-164815966293381.jpg",
-    "https://ss-images.saostar.vn/wp700/pc/1611568359519/Esi6n87VkAEVtTI.jpg",
-    "https://pbs.twimg.com/media/DiaRVEyVsAA1Nyv.jpg",
-    "https://kenh14cdn.com/2019/6/9/bi2-15600747395061444238740.jpg",
-    "https://i.pinimg.com/originals/c1/6d/93/c16d93cdb15d2fcc084bf1a7a04529b0.jpg",
-    "https://static.bongda24h.vn/medias/original/2019/11/14/larissa-saad-bong-hong-quyen-ru-cua-lucas-moura-anh-6.jpg",
-  ];
+  const [friendRequests, setFriendRequests] = useState([]);
+  const [friendRecall, setFriendRecall] = useState([]);
+  const [currentTab, setCurrentTab] = useState("received");
 
-  const names = [
-    "Lâm Minh Hùng",
-    "Nguyễn Thành Danh",
-    "Trần Quỳnh Hoa",
-    "Nguyễn Quốc Thanh",
-    "Trần Anh Huy",
-    "Hoàng Nhật Vương",
-    "Lý Văn Mỹ",
-    "Hà Thị Nhã An",
-  ];
+  const handleFriendRequest = async () => {
+    const token = await SecureStore.getItemAsync("authToken");
 
-  const generateUserNames = () => {
-    return names?.map((name) => name);
+    try {
+      const response = await fetch(API_URL + "/api/getAllFriendRequest", {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch friend requests: ${response.status}`);
+      }
+      const responseData = await response.json();
+      setFriendRequests(responseData.data);
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+    }
   };
 
-  const userNames = generateUserNames();
+  useEffect(() => {
+    handleFriendRequest();
+  }, []);
 
-  const renderFriendRequest = () => {
-    return friendRequest_imgs?.map((img, index) => (
+  const handleRecallFriendRequest = async () => {
+    const token = await SecureStore.getItemAsync("authToken");
+    try {
+      const response = await fetch(API_URL + "/api/getAllCancelFriendRequest", {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch friend requests: ${response.status}`);
+      }
+      const responseData = await response.json();
+      setFriendRecall(responseData.data);
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+    }
+  };
+
+  useEffect(() => {
+    handleRecallFriendRequest();
+  }, []);
+
+  const acceptFriend = async (email) => {
+    const token = await SecureStore.getItemAsync("authToken");
+    try {
+      const response = await fetch(API_URL + "/api/accept-friend", {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to accept friend: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log(responseData);
+      // Perform corresponding UI changes after successfully accepting the friend
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+    }
+  };
+
+  const handleAcceptFriend = (email) => {
+    acceptFriend(email);
+  };
+
+  const declineFriendRequest = async (email) => {
+    const token = await SecureStore.getItemAsync("authToken");
+    try {
+      const response = await fetch(API_URL + "/api/decline-friend-request", {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to accept friend: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log(responseData);
+      // Perform corresponding UI changes after successfully accepting the friend
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+    }
+  };
+
+  const handleDeleteFriendRequest = (email) => {
+    declineFriendRequest(email);
+  };
+  const deleteRecallFriendRequest = async (friendId) => {
+    const token = await SecureStore.getItemAsync("authToken");
+    try {
+      const response = await fetch(API_URL + "/api/cancel-friend-request", {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ friendId }),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to accept friend: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      console.log(responseData);
+      // Perform corresponding UI changes after successfully accepting the friend
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+    }
+  };
+
+  const handleRecall = (friendId) => {
+    deleteRecallFriendRequest(friendId); // Gọi hàm xử lý yêu cầu từ chối bạn bè với email được truyền vào
+  };
+
+  const renderFriendRequests = () => {
+    return friendRequests.map((friend, index) => (
       <View style={styles.user} key={index}>
         <View style={styles.profile}>
-          <Image source={{ uri: img }} style={styles.avatar} />
+          <Image source={{ uri: friend.avatar }} style={styles.avatar} />
           <View style={{ marginLeft: 10 }}>
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-              {userNames[index]}
+              {friend.name}
             </Text>
-            <Text style={{ marginTop: 25 }}>5 phút trước</Text>
+            <Text style={{ marginTop: 5, color: "#888888" }}>
+              {friend.email}
+            </Text>
+            <Text style={{ marginTop: 5, color: "#888888" }}>
+              {friend.phone}
+            </Text>
           </View>
         </View>
         <View style={styles.choose}>
-          <TouchableOpacity style={styles.accept}>
-            <Text style={{ color: "white" }}>Đồng ý</Text>
+          <TouchableOpacity
+            style={styles.accept}
+            onPress={() => handleAcceptFriend(friend.email)}
+          >
+            <Text style={{ color: "white" }}>Accept</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.cancel}>
-            <Text>Từ chối</Text>
+          <TouchableOpacity
+            style={styles.cancel}
+            onPress={() => handleDeleteFriendRequest(friend.email)}
+          >
+            <Text>Decline</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    ));
+  };
+
+  const renderRecallFriendRequests = () => {
+    return friendRecall.map((friend, index) => (
+      <View style={styles.user} key={index}>
+        <View style={styles.profile}>
+          <Image source={{ uri: friend.avatar }} style={styles.avatar} />
+          <View style={{ marginLeft: 10 }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+              {friend.name}
+            </Text>
+            <Text style={{ marginTop: 5, color: "#888888" }}>
+              {friend.email}
+            </Text>
+            <Text style={{ marginTop: 5, color: "#888888" }}>
+              {friend.phone}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.choose}>
+          <TouchableOpacity
+            style={styles.cancel}
+            onPress={() => handleRecall(friend._id)}
+          >
+            <Text>Thu hồi</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -74,7 +215,7 @@ const FriendRequest = ({ navigation }) => {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
-            style={{ height: 30, width: 30, color: "#00AE72" }}
+            style={{ height: 30, width: 30, tintColor: "#00AE72" }}
             source={{
               uri: "https://cdn1.iconfinder.com/data/icons/basic-ui-elements-coloricon/21/01-512.png",
             }}
@@ -85,18 +226,30 @@ const FriendRequest = ({ navigation }) => {
         </Text>
       </View>
       <View style={{ flexDirection: "row" }}>
-        <Pressable style={styles.button}>
+        <Pressable
+          style={[styles.button, currentTab === "received" && styles.activeTab]}
+          onPress={() => setCurrentTab("received")}
+        >
           <Text style={{ color: "#00AE72", fontWeight: "bold", fontSize: 18 }}>
             Đã nhận
           </Text>
         </Pressable>
-        <Pressable onPress={SendFriendRequest} style={styles.button2}>
+        <Pressable
+          style={[styles.button2, currentTab === "sent" && styles.activeTab]}
+          onPress={() => setCurrentTab("sent")}
+        >
           <Text style={{ color: "#00AE72", fontWeight: "bold", fontSize: 18 }}>
             Đã gửi
           </Text>
         </Pressable>
       </View>
-      <ScrollView>{renderFriendRequest()}</ScrollView>
+      <View style={{ flex: 1 }}>
+        {currentTab === "received" ? (
+          <ScrollView>{renderFriendRequests()}</ScrollView>
+        ) : (
+          <ScrollView>{renderRecallFriendRequests()}</ScrollView>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -110,6 +263,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
   },
+   button2: {
+    width: "50%",
+    height: 40,
+    marginTop: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   button: {
     width: "50%",
     height: 40,
@@ -118,13 +278,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "black",
-  },
-  button2: {
-    width: "50%",
-    height: 40,
-    marginTop: 30,
-    justifyContent: "center",
-    alignItems: "center",
   },
   avatar: {
     height: 70,
@@ -162,6 +315,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#D9D9D9",
     borderRadius: 10,
     marginRight: 10,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#00AE72",
   },
 });
 
