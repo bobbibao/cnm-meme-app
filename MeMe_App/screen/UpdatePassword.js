@@ -16,7 +16,7 @@ const UpdatePassword = ({ navigation, route }) => {
   const { email } = route.params;
   const [password, setPassword] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
-
+ 
   const Back = () => {
     navigation.navigate("VerifyResetPasswordOTP");
   };

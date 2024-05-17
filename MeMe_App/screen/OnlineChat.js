@@ -18,7 +18,7 @@ import { API_URL } from "@env";
 import { KeyboardAvoidingView } from "react-native";
 import axios from "axios";
 import { Video } from "expo-av";
-
+  
 const OnlineChat = ({ navigation, route }) => {
   const id = route.params.idChatRoom;
   const socket = route.params.socket;
@@ -160,6 +160,7 @@ const OnlineChat = ({ navigation, route }) => {
 
     if (!result.cancelled) {
       setSelectedImage(result.assets[0].uri);
+      console.log("URII",result.assets[0].uri);
     }
   };
 
@@ -170,17 +171,17 @@ const OnlineChat = ({ navigation, route }) => {
       name.split(".").pop().toLowerCase() === "mp4"
         ? "video/mp4"
         : "image/jpeg";
-
     let file = {
       uri: uri,
       name: name,
       type: type,
     };
+    console.log("file",file);
 
     formData.append("media", file);
     formData.append("content", content);
     formData.append("chatRoomId", chatRoomId);
-
+    console.log("Formdata",formData);
     try {
       const token = await SecureStore.getItemAsync("authToken");
       const response = await fetch(API_URL + "/api/send-media", {
@@ -434,7 +435,7 @@ const OnlineChat = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
           {messages
-            .find((m) => m.id === selectedMessageId)
+            ?.find((m) => m.id === selectedMessageId)
             ?.reactions.map((reaction, index) => (
               <Text key={index}>{convertReaction(reaction)}</Text>
             ))}

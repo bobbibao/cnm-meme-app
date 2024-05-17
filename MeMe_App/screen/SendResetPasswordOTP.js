@@ -14,7 +14,7 @@ import Verify from "./Verify";
 import axios from "axios";
 const SendResetPasswordOTP = ({ navigation }) => {
   const [email, setEmail] = useState("");
-
+ 
   const Back = () => {
     navigation.navigate("Login");
   };
