@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TextInput, Pressable, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  Pressable,
+  TouchableOpacity,
+  
+} from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import * as SecureStore from 'expo-secure-store';
-import {API_URL} from '@env';
+import { API_URL } from "@env";
+import { FontAwesome } from "@expo/vector-icons";
 
 // import Contacts from 'react-native-contacts';
 
 const Login = ({ navigation }) => {
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
+
    const loginBobbi = async () => {
       // this comment for testing purposes only the login (Không cần phải nhập lại tk, mk) 
       // const token = await SecureStore.getItemAsync('authToken');
@@ -35,45 +45,44 @@ const Login = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-const login = async () => {
-  if (!email || !password) {
-    alert("Vui lòng không để trống email hoặc mật khẩu");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://192.168.1.13:3000/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      console.error(responseData);
-      throw new Error(
-        `Đăng nhập không thành công, sai thông tin. Mã lỗi: ${
-          response.status
-        }, Thông điệp: ${responseData.message || ""}`
-      );
+  const login = async () => {
+    if (!email || !password) {
+      alert("Vui lòng không để trống email hoặc mật khẩu");
+      return;
     }
 
-    console.log(responseData); // In dữ liệu phản hồi từ server
-    navigation.navigate("Index"); // Điều hướng sau khi đăng nhập thành công
-  } catch (error) {
-    console.error(`Lỗi: ${error.message}`);
-    alert(`Đăng nhập không thành công! Lỗi: ${error.message}`);
-  }
-};
+    try {
+      const response = await fetch(`${API_URL}/api/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-  const ForgotPass = () => {
-    navigation.navigate("ForgotPass");
+      const responseData = await response.json();
+
+      // Nếu có lỗi từ server, hiển thị lỗi đó
+      if (!response.ok) {
+        console.error(responseData);
+        throw new Error(responseData);
+      }
+
+      console.log(responseData); // In dữ liệu phản hồi từ server
+      navigation.navigate("Index"); // Điều hướng sau khi đăng nhập thành công
+    } catch (error) {
+      console.error(`Lỗi: ${error.message}`);
+      alert(`Đăng nhập không thành công! Lỗi: ${error.message}`);
+    }
   };
 
+  const SendOtp = () => {
+    navigation.navigate("SendOtp");
+  };
+
+  const sendResetPasswordOTP = () =>{
+    navigation.navigate("SendResetPasswordOTP")
+  }
   return (
     <View
       style={{
@@ -107,7 +116,7 @@ const login = async () => {
         placeholder="Nhập email hoặc số điện thoại"
       />
       <TextInput
-        secureTextEntry={true}
+        secureTextEntry={secureTextEntry}
         onChangeText={setPassword}
         style={{
           width: "80%",
@@ -123,7 +132,19 @@ const login = async () => {
         placeholder="Nhập mật khẩu "
       />
       <TouchableOpacity
-        onPress={loginBobbi}
+
+        onPress={() => setSecureTextEntry((prev) => !prev)} // Thêm nút này
+        style={{ paddingRight: 15 }}
+      >
+        <FontAwesome
+          name={secureTextEntry ? "eye-slash" : "eye"}
+          size={24}
+          color="black"
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={login}
+
         style={{
           width: 146,
           height: 36,
@@ -137,12 +158,12 @@ const login = async () => {
         <Text style={{ fontSize: 14, color: "#FFF" }}>Đăng nhập</Text>
         <AntDesign name="arrowright" size={24} color="white" />
       </TouchableOpacity>
-      <Pressable onPress={() => ForgotPass()} style={{ marginTop: 5 }}>
+      <Pressable onPress={() => sendResetPasswordOTP()} style={{ marginTop: 5 }}>
         <Text style={{ color: "#508BE3" }}>Quên mật khẩu?</Text>
       </Pressable>
       <View style={{ flexDirection: "row", marginTop: 20 }}>
         <Text>Bạn chưa có tài khoản?</Text>
-        <Pressable onPress={() => ForgotPass()} style={{ marginLeft: 50 }}>
+        <Pressable onPress={() => SendOtp()} style={{ marginLeft: 50 }}>
           <Text style={{ color: "#508BE3" }}>Đăng kí</Text>
         </Pressable>
       </View>
@@ -151,4 +172,3 @@ const login = async () => {
 };
 
 export default Login;
-

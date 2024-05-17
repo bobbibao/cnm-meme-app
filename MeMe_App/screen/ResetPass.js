@@ -9,7 +9,7 @@ const ResetPass = ({ navigation }) => {
         justifyContent: "space-around",
         alignItems: "center",
       }}
-    >
+    > 
       <Image
         source={require("../assets/logoMeme.png")}
         style={{ height: 325, width: 332.15 }}

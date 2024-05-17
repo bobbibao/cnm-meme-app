@@ -17,6 +17,7 @@ import io from 'socket.io-client';
 import { AppRegistry } from 'react-native';
 import App from '../App';
 import { name as appName } from '../app.json';
+ 
 AppRegistry.registerComponent(appName, () => App);
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -131,7 +132,7 @@ const [expoPushToken, setExpoPushToken] = useState('');
     <SafeAreaView style={styles.container}>
       <HeaderIndex navigation={navigation} />
       <ScrollView showsVerticalScrollIndicator={true} style={{padding: 10}}>
-        {userInfo.map((user, index) => (
+        {userInfo?.map((user, index) => (
           <TouchableOpacity
             onPress={() => OnlineChat(user.idChatRoom)}
             key={index}

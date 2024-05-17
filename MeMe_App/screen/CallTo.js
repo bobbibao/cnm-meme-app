@@ -11,7 +11,7 @@ import {
 import AllPeople from "./AllPeople";
 import Index from "./Index";
 export default CallTo = ({ navigation }) => {
-  
+   
 
   return (
     <SafeAreaView style={styles.container}>

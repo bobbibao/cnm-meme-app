@@ -13,7 +13,7 @@ import Index from "./Index";
 export default Footer = ({ navigation }) => {
   const AllPeople = () => {
     navigation.navigate("AllPeople");
-  };
+  }; 
   const Index = () => {
     navigation.navigate("Index", { reload: Date.now() })
   }
@@ -23,8 +23,8 @@ export default Footer = ({ navigation }) => {
 
   let footer__imgs = [
     "https://cdn-icons-png.freepik.com/512/273/273696.png",
-    "https://www.pngitem.com/pimgs/b/207-2074266_video-call-icon-blue-video-call-icon-hd.png",
     "https://cdn-icons-png.flaticon.com/512/2118/2118701.png",
+    "https://www.freeiconspng.com/thumbs/person-icon/clipart--person-icon--cliparts-15.png",
   ];
 
   return (
@@ -38,22 +38,22 @@ export default Footer = ({ navigation }) => {
           <Text style={{ marginTop: 5 }}>Đoạn Chat</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => CallList()} style={styles.touchable}>
-        <View style={styles.iconContainer}>
-          <Image
-            source={{ uri: footer__imgs[1] }}
-            style={styles.iconCall}
-          ></Image>
-          <Text style={{ marginTop: 10 }}>Cuộc gọi</Text>
-        </View>
-      </TouchableOpacity>
       <TouchableOpacity onPress={() => AllPeople()} style={styles.touchable}>
         <View style={styles.iconContainer}>
           <Image
-            source={{ uri: footer__imgs[2] }}
+            source={{ uri: footer__imgs[1] }}
             style={styles.iconPeople}
           ></Image>
-          <Text>Mọi người</Text>
+          <Text style={{ marginTop: 0 }}>Danh bạ</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => CallList()} style={styles.touchable}>
+        <View style={styles.iconContainer}>
+          <Image
+            source={{ uri: footer__imgs[2] }}
+            style={styles.iconPerson}
+          ></Image>
+          <Text style={{marginBottom: -5}}>Cá nhân</Text>
         </View>
       </TouchableOpacity>
     </SafeAreaView>
@@ -82,10 +82,10 @@ const styles = StyleSheet.create({
     height: 30,
     width: 30,
   },
-  iconCall: {
-    height: 20,
-    width: 40,
-    marginTop: 5
+  iconPerson: {
+    height: 28,
+    width: 18,
+    marginTop:0
   },
   iconPeople: {
     height: 38,

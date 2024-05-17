@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   Pressable,
 } from "react-native";
-
+ 
 export default SendFriendRequest = ({ navigation }) => {
   const FriendRequest = () => {
     navigation.navigate("FriendRequest");

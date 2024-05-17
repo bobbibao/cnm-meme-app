@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import Footer from "./Footer";
 import Index from "./Index";
-
+ 
 export default function CallList({ navigation }) {
   const headerImgs = [
     "https://res.cloudinary.com/dpigoorhc/image/upload/v1699298966/onlyfan/index/Icon/esskl98l5b52i8rag9jq.png",
@@ -125,19 +125,19 @@ export default function CallList({ navigation }) {
     <SafeAreaView style={styles.container}>
       <SafeAreaView style={styles.header}>
         <View style={styles.row1}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.header__item}
             onPress={() => navigation.toggleDrawer()}
           >
             <Image source={{ uri: headerImgs[0] }} style={styles.icon} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <Text style={styles.headerTitle}>Cuộc gọi</Text>
-          <TouchableOpacity style={styles.header__item}>
+          {/* <TouchableOpacity style={styles.header__item}>
             <Image
               source={{ uri: headerImgs[1] }}
               style={{ height: 40, width: 40 }}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </SafeAreaView>
       <FlatList
@@ -152,13 +152,13 @@ export default function CallList({ navigation }) {
 
 const styles = StyleSheet.create({
   header: {
-    height: 100,
+    height: 50,
     borderBottomColor: "rgba(0, 0, 0, 0.3)",
     borderBottomWidth: 1,
   },
   row1: {
     flexDirection: "row",
-    marginTop: 50,
+    marginTop: 10,
     width: "100%",
     justifyContent: "space-between",
     alignItems: "center",
@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: "#00AE72",
     fontWeight: "bold",
+    marginLeft:170
   },
   icon: {
     width: 25,
