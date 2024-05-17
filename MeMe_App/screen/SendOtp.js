@@ -10,7 +10,7 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import { API_URL } from "@env";
 import Verify from "./Verify";
-
+ 
 const SendOtp = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const sendOTP = async () => {

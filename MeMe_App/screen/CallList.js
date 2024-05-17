@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import Footer from "./Footer";
 import Index from "./Index";
-
+ 
 export default function CallList({ navigation }) {
   const headerImgs = [
     "https://res.cloudinary.com/dpigoorhc/image/upload/v1699298966/onlyfan/index/Icon/esskl98l5b52i8rag9jq.png",

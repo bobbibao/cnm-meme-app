@@ -13,7 +13,7 @@ import Index from "./Index";
 export default Footer = ({ navigation }) => {
   const AllPeople = () => {
     navigation.navigate("AllPeople");
-  };
+  }; 
   const Index = () => {
     navigation.navigate("Index", { reload: Date.now() })
   }
