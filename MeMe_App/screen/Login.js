@@ -11,7 +11,7 @@ const Login = ({ navigation }) => {
       // this comment for testing purposes only the login (Không cần phải nhập lại tk, mk) 
       // const token = await SecureStore.getItemAsync('authToken');
       // if(token) navigation.navigate("Index");
-      console.log(API_URL);
+      console.log(API_URL + 123);
       fetch(API_URL+'/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
@@ -19,6 +19,7 @@ const Login = ({ navigation }) => {
           "email": email,
           "password": password,
         }),
+        
       }).then(response => response.json())
       .then(async response => {
         console.log(response);
@@ -150,3 +151,4 @@ const login = async () => {
 };
 
 export default Login;
+

@@ -17,7 +17,6 @@ import io from 'socket.io-client';
 import { AppRegistry } from 'react-native';
 import App from '../App';
 import { name as appName } from '../app.json';
-
 AppRegistry.registerComponent(appName, () => App);
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -35,7 +34,7 @@ const Index = ({ navigation, route }) => {
   const setupSocket = async () => {
     socket = io(API_URL);
     socket.on("connection", ()=>{
-      console.log("Socket connected");
+      console.log("Socket connected 123");
     })
     const userId = await SecureStore.getItemAsync("userId");
     socket.emit("setup", `"${userId}"`);

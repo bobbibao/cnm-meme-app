@@ -15,7 +15,6 @@ import * as SecureStore from 'expo-secure-store';
 import {API_URL} from '@env';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 
-
 const OnlineChat = ({navigation, route}) => {
   const id = route.params.idChatRoom;
   const socket = route.params.socket;
@@ -34,7 +33,8 @@ const OnlineChat = ({navigation, route}) => {
           },
         });
         const res = await response.json();
-        setMessages(res.data);
+        // setMessages(...res.data, sent: res.data.sent === await SecureStore.getItemAsync('userId'));
+        setMessages(prev => [...prev, ...res.data]);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
@@ -117,7 +117,7 @@ const OnlineChat = ({navigation, route}) => {
         contentContainerStyle={{paddingHorizontal: '1%'}}>
 
       {messages && messages.map((message, index) => (
-        <SafeAreaView key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: `${message.sent? 'flex-end': 'flex-start'}`, width: "100%", marginVertical: '1%'}}>
+        <SafeAreaView key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: `${message.isSent? 'flex-end': 'flex-start'}`, width: "100%", marginVertical: '1%'}}>
           <SafeAreaView style={{width: 'auto', height: "auto"}}>
             <SafeAreaView style={{display: 'flex', flexDirection: 'row'}}>
               {!message.sent && (
