@@ -17,8 +17,8 @@ export default Footer = ({ navigation }) => {
   const Index = () => {
     navigation.navigate("Index", { reload: Date.now() })
   }
-  const CallList = () => {
-    navigation.navigate("CallList");
+  const Profile = () => {
+    navigation.navigate("Profile");
   };
 
   let footer__imgs = [
@@ -47,7 +47,7 @@ export default Footer = ({ navigation }) => {
           <Text style={{ marginTop: 0 }}>Danh bạ</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => CallList()} style={styles.touchable}>
+      <TouchableOpacity onPress={() => Profile()} style={styles.touchable}>
         <View style={styles.iconContainer}>
           <Image
             source={{ uri: footer__imgs[2] }}

@@ -18,22 +18,53 @@ import { API_URL } from "@env";
 import { KeyboardAvoidingView } from "react-native";
 import axios from "axios";
 import { Video } from "expo-av";
-  
+
 const OnlineChat = ({ navigation, route }) => {
   const id = route.params.idChatRoom;
+  console.log("iddd",id);
   const socket = route.params.socket;
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
   const scrollViewRef = useRef();
-  const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedImageUri, setSelectedImageUri] = useState(null); // State để lưu URI của hình ảnh được chọn
+  const [selectedImageUri, setSelectedImageUri] = useState(null); // State to store the selected image URI
+  const [show, setShow] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
+  const [user, setUser] = useState({});
 
   useEffect(() => {
+    
+    const fetchUserInfo = async () => {
+        try {
+          console.log("iddddhehe", id);
+
+            const response = await fetch(`${API_URL}/api/info-user/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            console.log("data group: ", data);
+            setUser(data);
+        } catch (error) {
+            console.error('Error fetching user info:', error);
+        }
+    };
     getPermissionAsync();
-  }, []);
+    fetchUserInfo();
+}, [id]);
+
+ 
+
+  const handleModal = async () => {
+    const response = await fetch(`${API_URL}/profile/${user._id}`);
+    const res = await response.json();
+    setUserInfo(res.data);
+    setShow(true);
+  };
 
   const getPermissionAsync = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -160,7 +191,6 @@ const OnlineChat = ({ navigation, route }) => {
 
     if (!result.cancelled) {
       setSelectedImage(result.assets[0].uri);
-      console.log("URII",result.assets[0].uri);
     }
   };
 
@@ -176,12 +206,11 @@ const OnlineChat = ({ navigation, route }) => {
       name: name,
       type: type,
     };
-    console.log("file",file);
 
     formData.append("media", file);
     formData.append("content", content);
     formData.append("chatRoomId", chatRoomId);
-    console.log("Formdata",formData);
+
     try {
       const token = await SecureStore.getItemAsync("authToken");
       const response = await fetch(API_URL + "/api/send-media", {
@@ -198,7 +227,6 @@ const OnlineChat = ({ navigation, route }) => {
       }
 
       const responseData = await response.json();
-      console.log(responseData);
     } catch (error) {
       console.error("Failed to send media:", error);
     }
@@ -234,7 +262,7 @@ const OnlineChat = ({ navigation, route }) => {
                 style={{ marginTop: 2, marginRight: 20 }}
               />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleModal}>
               <Image source={require("../assets/menu.png")} style={{}} />
             </TouchableOpacity>
           </View>
@@ -345,9 +373,7 @@ const OnlineChat = ({ navigation, route }) => {
             ))}
         </ScrollView>
 
-        <View
-          style={{ backgroundColor: "#fff", padding: 11, flexDirection: "row" }}
-        >
+        <View style={{ backgroundColor: "#fff", padding: 11, flexDirection: "row" }}>
           <View style={{ width: "80%" }}>
             <TextInput
               placeholder="Tin nhắn"
@@ -458,11 +484,26 @@ const OnlineChat = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
         </Modal>
+
+        <Modal isVisible={show}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>User Profile</Text>
+            <Text style={styles.modalText}>Name: {userInfo.name}</Text>
+            <Text style={styles.modalText}>Email: {userInfo.email}</Text>
+            <Text style={styles.modalText}>Phone: {userInfo.phone}</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShow(false)}
+            >
+              <Text style={{ color: 'white' }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
-//
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -495,6 +536,23 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: "row",
     alignItems: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    borderColor: "rgba(0, 0, 0, 0.1)",
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  closeButton: {
+    backgroundColor: "#00AE72",
+    padding: 10,
+    borderRadius: 5,
   },
 });
 
