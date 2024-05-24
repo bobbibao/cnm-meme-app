@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginHorizontal: 10,
     marginTop: 10,
+    marginBottom: 10,
     height: 70,
   },
   chatContainer: {
@@ -228,6 +229,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingBottom: 10,
   },
   userName: {
     fontSize: 20,
