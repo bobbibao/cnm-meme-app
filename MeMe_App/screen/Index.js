@@ -35,7 +35,7 @@ const Index = ({ navigation, route }) => {
   const setupSocket = async () => {
     socket = io(API_URL);
     socket.on("connection", ()=>{
-      console.log("Socket connected");
+      console.log("Socket connected 123");
     })
     const userId = await SecureStore.getItemAsync("userId");
     socket.emit("setup", `"${userId}"`);

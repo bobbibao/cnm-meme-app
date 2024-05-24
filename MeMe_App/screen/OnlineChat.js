@@ -84,7 +84,8 @@ const OnlineChat = ({ navigation, route }) => {
           },
         });
         const res = await response.json();
-        setMessages(res.data);
+        // setMessages(...res.data, sent: res.data.sent === await SecureStore.getItemAsync('userId'));
+        setMessages(prev => [...prev, ...res.data]);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       }
