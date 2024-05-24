@@ -10,12 +10,13 @@ import HeaderIndex from "./screen/HeaderIndex";
 import Footer from "./screen/Footer";
 import Index from "./screen/Index";
 import AllPeople from "./screen/AllPeople";
-import CallList from "./screen/CallList";
+import Profile from "./screen/Profile";
 import FriendRequest from "./screen/FriendRequest";
 import SendFriendRequest from "./screen/SendFriendRequest";
 import OnlineChat from "./screen/OnlineChat";
 import CallTo from "./screen/CallTo";
 import Register from "./screen/Register";
+
 import SendResetPasswordOTP from "./screen/SendResetPasswordOTP";
 import VerifyResetPasswordOTP from "./screen/VerifyResetPasswordOTP";
 import UpdatePassword from "./screen/UpdatePassword";
@@ -43,7 +44,7 @@ export default function App() {
         <Stack.Screen name="Footer" component={Footer} />
         <Stack.Screen name="Index" component={Index} />
         <Stack.Screen name="AllPeople" component={AllPeople} />
-        <Stack.Screen name="CallList" component={CallList} />
+        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="FriendRequest" component={FriendRequest} />
         <Stack.Screen name="SendFriendRequest" component={SendFriendRequest} />
         <Stack.Screen name="OnlineChat" component={OnlineChat} />
