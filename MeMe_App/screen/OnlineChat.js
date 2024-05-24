@@ -21,7 +21,6 @@ import { Video } from "expo-av";
 
 const OnlineChat = ({ navigation, route }) => {
   const id = route.params.idChatRoom;
-  console.log("iddd",id);
   const socket = route.params.socket;
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
@@ -35,36 +34,42 @@ const OnlineChat = ({ navigation, route }) => {
   const [user, setUser] = useState({});
 
   useEffect(() => {
-    
     const fetchUserInfo = async () => {
-        try {
-          console.log("iddddhehe", id);
-
-            const response = await fetch(`${API_URL}/api/info-user/${id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await response.json();
-            console.log("data group: ", data);
-            setUser(data);
-        } catch (error) {
-            console.error('Error fetching user info:', error);
-        }
+      try {
+        const token = await SecureStore.getItemAsync("authToken");
+        const response = await fetch(`${API_URL}/api/info-user/${id}`, {
+          method: 'GET',
+          headers: {
+            Authorization: token,
+          },
+        });
+        const res = await response.json();
+        setUser(res.data);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
     };
     getPermissionAsync();
     fetchUserInfo();
-}, [id]);
-
- 
+  }, [id]);
 
   const handleModal = async () => {
-    const response = await fetch(`${API_URL}/profile/${user._id}`);
-    const res = await response.json();
-    setUserInfo(res.data);
-    setShow(true);
+    try {
+      const token = await SecureStore.getItemAsync("authToken");
+      const response = await fetch(`${API_URL}/api/profile/${user._id}`, {
+        method: "GET",
+        headers: {
+          Authorization:token, // Ensure proper format for Authorization header
+        },
+      });
+      const res = await response.json();
+      setUserInfo(res.data);
+      setShow(true);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
   };
+  
 
   const getPermissionAsync = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -487,19 +492,19 @@ const OnlineChat = ({ navigation, route }) => {
         </Modal>
 
         <Modal isVisible={show}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>User Profile</Text>
-            <Text style={styles.modalText}>Name: {userInfo.name}</Text>
-            <Text style={styles.modalText}>Email: {userInfo.email}</Text>
-            <Text style={styles.modalText}>Phone: {userInfo.phone}</Text>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShow(false)}
-            >
-              <Text style={{ color: 'white' }}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
+  <View style={styles.modalContent}>
+    <Text style={styles.modalText}>User Profile</Text>
+    <Image source={{ uri: userInfo.avatar }} style={styles.avatar} />
+    <Text style={styles.modalText}>Name: {userInfo.name}</Text>
+    <Text style={styles.modalText}>Email: {userInfo.email}</Text>
+    <Text style={styles.modalText}>Phone: {userInfo.phone}</Text>
+    <Text style={styles.modalText}>Date of Birth: {userInfo.dob}</Text>
+    <Text style={styles.modalText}>Manual Group: {userInfo.countCommonGroup}</Text>
+    <TouchableOpacity style={styles.closeButton} onPress={() => setShow(false)}>
+      <Text style={{ color: 'white' }}>Close</Text>
+    </TouchableOpacity>
+  </View>
+</Modal>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -509,6 +514,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F1FFFA",
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50, // Đảm bảo hình ảnh là hình tròn bằng cách sử dụng nửa chiều cao của nó
+    marginBottom: 10, // Khoảng cách giữa hình ảnh và các phần tử khác
   },
   header: {
     flexDirection: "row",
