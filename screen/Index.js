@@ -76,7 +76,6 @@ const Index = ({ navigation, route }) => {
     "Nguyễn Đình Hòa",
     "Trần Văn Bình",
   ];
-
   const OnlineChat = async (idChatRoom) => {
     const userId = await SecureStore.getItemAsync("userId");
     socket.emit('join chat', idChatRoom, `"${userId}"`);
@@ -84,10 +83,10 @@ const Index = ({ navigation, route }) => {
       console.log("joined",room);
     });
     socket.on("message", (message)=>{
-      userId != message.senderId && schedulePushNotification("Thuy Duong", message.content);
+      userId != message.senderId && schedulePushNotification(message.senderName, message.content || "Đã gửi một link đính kèm");
       const index = userInfo.findIndex((user) => user.idChatRoom === idChatRoom);
       userInfo[index].lastMessage.text = message.content;
-      userInfo[index].lastMessage.time = message.time;
+      userInfo[index].lastMessage.createAt = message.createAt;
       setUserInfo([...userInfo]);
     });
     navigation.navigate("OnlineChat", {idChatRoom, socket});
@@ -148,7 +147,7 @@ const [expoPushToken, setExpoPushToken] = useState('');
                 <Text style={styles.chatContent}>{user.lastMessage.text}</Text>
               </View>
               <View style={styles.timeContainer}>
-                <Text>{user.lastMessage.time}</Text>
+                <Text>{user.lastMessage.createAt}</Text>
               </View>
             </View>
           </TouchableOpacity>

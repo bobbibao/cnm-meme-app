@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   TextInput,
   Platform,
+  FlatList
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
@@ -18,6 +19,7 @@ import { API_URL } from "@env";
 import { KeyboardAvoidingView } from "react-native";
 import axios from "axios";
 import { Video } from "expo-av";
+
   
 const OnlineChat = ({ navigation, route }) => {
   const id = route.params.idChatRoom;
@@ -31,10 +33,177 @@ const OnlineChat = ({ navigation, route }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageUri, setSelectedImageUri] = useState(null); // State để lưu URI của hình ảnh được chọn
+  const [show, setShow] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
   const [user, setUser] = useState({});
+  const [currentUser, setCurrentUser] = useState({});
   useEffect(() => {
     getPermissionAsync();
   }, []);
+
+  
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("authToken");
+        const response = await fetch(`${API_URL}/api/info-user/${id}`, {
+          method: 'GET',
+          headers: {
+            Authorization: token,
+          },
+        });
+        const res = await response.json();
+        setUser(res.data);
+        console.log("dataa n",res.data);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+    getPermissionAsync();
+    fetchUserInfo();
+  }, [id]);
+
+  const handleModal = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("authToken");
+      const response = await fetch(`${API_URL}/api/profile/${user._id}`, {
+        method: "GET",
+        headers: {
+          Authorization:token, // Ensure proper format for Authorization header
+        },
+      });
+      const res = await response.json();
+      setUserInfo(res.data);
+      setShow(true);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
+  };
+const handleModalGroup = async (groupId) => {
+  console.log("groupId", groupId);
+  try {
+    const token = await SecureStore.getItemAsync("authToken");
+    const response = await fetch(`${API_URL}/api/profile-group/${groupId}`, {
+      method: "GET",
+      headers: {
+        Authorization:token, // Ensure proper format for Authorization header
+      },
+    });
+    const res = await response.json();
+    setUserInfo(res.data);
+    console.log("data gr",res.data);
+    setShow(true);
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+};
+const handleRemove = async (userId) => {
+  try {
+    const token = await SecureStore.getItemAsync("authToken");
+    await fetch(`${API_URL}/api/remove-user/${userId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: token,
+      },
+    });
+    // Refresh group info
+    handleModalGroup(id);
+  } catch (error) {
+    console.error("Error removing user:", error);
+  }
+};
+
+const handleSetAdmin = async (userId) => {
+  try {
+    const token = await SecureStore.getItemAsync("authToken");
+    await fetch(`${API_URL}/api/set-admin/${userId}`, {
+      method: "POST",
+      headers: {
+        Authorization: token,
+      },
+    });
+    // Refresh group info
+    handleModalGroup(id);
+  } catch (error) {
+    console.error("Error setting admin:", error);
+  }
+};
+
+const handleDeleteGroup = async () => {
+  try {
+    const token = await SecureStore.getItemAsync("authToken");
+    await fetch(`${API_URL}/api/delete-group/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: token,
+      },
+    });
+    // Navigate back or to another screen after deleting group
+    navigation.goBack();
+  } catch (error) {
+    console.error("Error deleting group:", error);
+  }
+};
+
+const handleLeaveGroup = async () => {
+  try {
+    const token = await SecureStore.getItemAsync("authToken");
+    await fetch(`${API_URL}/api/leave-group/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: token,
+      },
+    });
+    // Navigate back or to another screen after leaving group
+    navigation.goBack();
+  } catch (error) {
+    console.error("Error leaving group:", error);
+  }
+};
+const renderMember = ({ item }) => (
+  <View style={styles.card}>
+    <View style={styles.cardRow}>
+      <Image source={{ uri: item.photoURL }} style={styles.avatar} />
+      <View style={styles.cardContent}>
+        <Text style={styles.memberName}>{item.displayName}</Text>
+        <Text style={styles.memberRole}>{item.roles}</Text>
+      </View>
+      {currentUser._id !== user.ownerId && (
+        <View style={styles.cardActions}>
+          <TouchableOpacity
+            style={[styles.button, styles.redButton]}
+            onPress={() => handleRemove(item.id)}
+          >
+            <Text style={styles.buttonText}>Kick</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.blueButton]}
+            onPress={() => handleSetAdmin(item.id)}
+          >
+            <Text style={styles.buttonText}>Set Admin</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+    {item.roles === "owner" && (
+      <View style={styles.cardActions}>
+        <TouchableOpacity
+          style={[styles.button, styles.redButton]}
+          onPress={handleDeleteGroup}
+        >
+          <Text style={styles.buttonText}>Delete Group</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.blueButton]}
+          onPress={handleLeaveGroup}
+        >
+          <Text style={styles.buttonText}>Leave Group</Text>
+        </TouchableOpacity>
+      </View>
+    )}
+  </View>
+);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,9 +265,11 @@ const OnlineChat = ({ navigation, route }) => {
         const res = await response.json();
         console.log("res", res);
         // setMessages(...res.data, sent: res.data.sent === await SecureStore.getItemAsync('userId'));
-        setMessages(prev => [...prev, ...res.data]);
+        if (res?.data)
+          setMessages(prev => [...prev, ...res?.data]);
       } catch (error) {
         console.error("Failed to fetch data:", error);
+        setMessages([]);
       }
     };
     fetchData();
@@ -119,6 +290,7 @@ const OnlineChat = ({ navigation, route }) => {
         senderId: `"${await SecureStore.getItemAsync("userId")}"`,
         content: message,
         type: "text",
+        createAt: new Date(),
         reply:""
       };
       
@@ -131,6 +303,7 @@ const OnlineChat = ({ navigation, route }) => {
         body: JSON.stringify({ data: data }),
       });
       const res = await response.json();
+      data.createAt = res.data.createAt;
       socket.emit("message", data, res.data._id);
     }
 
@@ -171,13 +344,12 @@ const OnlineChat = ({ navigation, route }) => {
       }
     );
     const res = await response.json();
-    if (res.status === 200) {
-      socket.emit("react message", {
-        chatRoomId: id,
-        messageId: res.data._id,
-        reactions: res.data.reactions,
-      });
-    }
+    console.log("react message", res.data, id);
+    socket.emit("react message", {
+      chatRoomId: id,
+      messageId: res.data._id,
+      reactions: res.data.reactions,
+    });
     setModalVisible(false);
   };
 
@@ -331,9 +503,9 @@ const OnlineChat = ({ navigation, route }) => {
                 style={{ marginTop: 2, marginRight: 20 }}
               />
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Image source={require("../assets/menu.png")} style={{}} />
-            </TouchableOpacity>
+                  <TouchableOpacity onPress={!user.ownerId ? handleModal : () => handleModalGroup(user._id)}>
+        <Image source={require("../assets/menu.png")} style={{}} />
+      </TouchableOpacity>
           </View>
         </View>
 
@@ -376,8 +548,8 @@ const OnlineChat = ({ navigation, route }) => {
                       {!message.isSent && (
                         <Image
                           source={{
-                            uri: message.receiverPhoto
-                              ? message.receiverPhoto
+                            uri: message.avatarSender
+                              ? message.avatarSender
                               : "https://i.imgur.com/rsJjBcH.png",
                           }}
                           style={{
@@ -427,13 +599,15 @@ const OnlineChat = ({ navigation, route }) => {
                               : message.content}
                           </Text>
                         )}
-                        <Text style={{ paddingTop: 5 }}>{message.time}</Text>
+                        <Text style={{ paddingTop: 5 ,display: "flex", flexDirection: "row", }}>{!message.hided && !message.unsent && message.time}</Text>
+                        <View style={{ paddingTop: 5, display: "flex", flexDirection: "row", }}>
                         {message.reactions &&
                           message.reactions.map((reaction, index) => (
                             <Text key={index}>
                               {convertReaction(reaction.reaction)}
                             </Text>
                           ))}
+                          </View>
                       </SafeAreaView>
                     </SafeAreaView>
                   </SafeAreaView>
@@ -531,11 +705,14 @@ const OnlineChat = ({ navigation, route }) => {
               <Text style={{ fontSize: 40 }}>❌</Text>
             </TouchableOpacity>
           </View>
-          {messages
+          <View >
+            {messages
             ?.find((m) => m.id === selectedMessageId)
             ?.reactions.map((reaction, index) => (
               <Text key={index}>{convertReaction(reaction)}</Text>
             ))}
+          </View>
+          
         </Modal>
 
         <Modal isVisible={selectedImageUri !== null}>
@@ -555,11 +732,56 @@ const OnlineChat = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
         </Modal>
+        <Modal isVisible={selectedImageUri !== null}>
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Image
+              source={{ uri: selectedImageUri }}
+              style={{ width: "100%", height: "80%" }}
+              resizeMode="contain"
+            />
+            <TouchableOpacity
+              style={{ marginTop: 20 }}
+              onPress={() => setSelectedImageUri(null)}
+            >
+              <Text style={{ fontSize: 20, color: "white" }}>Thoát</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+        <Modal isVisible={show}>
+        <View style={styles.modalContent}>
+          {userInfo?.members ? (
+            <>
+              <Text style={styles.header}>Danh sách thành viên</Text>
+              <FlatList
+                data={userInfo.members}
+                renderItem={renderMember}
+                keyExtractor={(item) => item.id.toString()}
+              />
+            </>
+          ) : (
+            <>
+              <Text style={styles.modalText}>User Profile</Text>
+              <Image source={{ uri: userInfo?.avatar }} style={styles.avatarLarge} />
+              <Text style={styles.modalText}>Name: {userInfo?.name}</Text>
+              <Text style={styles.modalText}>Email: {userInfo?.email}</Text>
+              <Text style={styles.modalText}>Phone: {userInfo?.phone}</Text>
+              <Text style={styles.modalText}>Date of Birth: {userInfo?.dob}</Text>
+              <Text style={styles.modalText}>Gender: {userInfo?.gender}</Text>
+              <Text style={styles.modalText}>Manual Group: {userInfo?.countCommonGroup}</Text>
+            </>
+          )}
+          <TouchableOpacity style={styles.closeButton} onPress={() => setShow(false)}>
+            <Text style={{ color: 'white' }}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
-//
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -593,6 +815,81 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
   },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    borderColor: "rgba(0, 0, 0, 0.1)",
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  closeButton: {
+    backgroundColor: "#00AE72",
+    padding: 10,
+    borderRadius: 5,
+  },
+  card: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    elevation: 3,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  cardContent: {
+    flex: -2,
+    marginLeft: 5,
+  },
+  memberName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  memberRole: {
+    fontSize: 14,
+    color: 'gray',
+  },
+  cardActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginLeft: 'auto', // Ensures the buttons are pushed to the right
+  },
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    marginLeft: 10, // Ensures even spacing between buttons
+  },
+  redButton: {
+    backgroundColor: 'red',
+  },
+  blueButton: {
+    backgroundColor: 'blue',
+  },
+  buttonText: {
+    fontSize: 14,
+    color: 'white',
+  },
+  
+  avatarLarge: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 15
+  },
+  
 });
 
 export default OnlineChat;

@@ -18,58 +18,63 @@ import { API_URL } from "@env";
 import { KeyboardAvoidingView } from "react-native";
 import axios from "axios";
 import { Video } from "expo-av";
-
+  
 const OnlineChat = ({ navigation, route }) => {
   const id = route.params.idChatRoom;
   const socket = route.params.socket;
+  const [userId, setUserId] = useState("");
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
   const scrollViewRef = useRef();
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedImageUri, setSelectedImageUri] = useState(null); // State to store the selected image URI
-  const [show, setShow] = useState(false);
-  const [userInfo, setUserInfo] = useState({});
+  const [selectedImageUri, setSelectedImageUri] = useState(null); // State để lưu URI của hình ảnh được chọn
   const [user, setUser] = useState({});
+  useEffect(() => {
+    getPermissionAsync();
+  }, []);
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const fetchData = async () => {
+      const token = await SecureStore.getItemAsync("authToken");
+      const userId = await SecureStore.getItemAsync("userId");
+      setUserId(userId);
+      console.log(API_URL);
       try {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${API_URL}/api/info-user/${id}`, {
-          method: 'GET',
+        const response = await fetch(API_URL + `/api/info-user/${id}`, {
+          method: "GET",
           headers: {
             Authorization: token,
           },
         });
         const res = await response.json();
+        // console.log("asd", res);
         setUser(res.data);
       } catch (error) {
-        console.error('Error fetching user info:', error);
+        console.error("Failed to fetch data:", error);
       }
     };
-    getPermissionAsync();
-    fetchUserInfo();
+    fetchData();
   }, [id]);
 
-  const handleModal = async () => {
-    try {
-      const token = await SecureStore.getItemAsync("authToken");
-      const response = await fetch(`${API_URL}/api/profile/${user._id}`, {
-        method: "GET",
-        headers: {
-          Authorization:token, // Ensure proper format for Authorization header
-        },
-      });
-      const res = await response.json();
-      setUserInfo(res.data);
-      setShow(true);
-    } catch (error) {
-      console.error("Failed to fetch data:", error);
+  function formatTime(milliseconds) {
+    const seconds = Math.floor(milliseconds / 1000);
+    if (seconds < 60) {
+      return seconds + " seconds ago";
     }
-  };
-  
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) {
+      return minutes + " minutes ago";
+    }
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return hours + " hours ago";
+    }
+    const days = Math.floor(hours / 24);
+    return days + " days ago";
+  }
 
   const getPermissionAsync = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -89,10 +94,13 @@ const OnlineChat = ({ navigation, route }) => {
           },
         });
         const res = await response.json();
+        console.log("res", res);
         // setMessages(...res.data, sent: res.data.sent === await SecureStore.getItemAsync('userId'));
-        setMessages(prev => [...prev, ...res.data]);
+        if (res?.data)
+          setMessages(prev => [...prev, ...res?.data]);
       } catch (error) {
         console.error("Failed to fetch data:", error);
+        setMessages([]);
       }
     };
     fetchData();
@@ -104,7 +112,7 @@ const OnlineChat = ({ navigation, route }) => {
     }
 
     if (selectedImage) {
-      await sendMedia(id, "", selectedImage);
+      await sendMedia(id, message, selectedImage);
       setSelectedImage(null);
     } else {
       const token = await SecureStore.getItemAsync("authToken");
@@ -113,7 +121,10 @@ const OnlineChat = ({ navigation, route }) => {
         senderId: `"${await SecureStore.getItemAsync("userId")}"`,
         content: message,
         type: "text",
+        createAt: new Date(),
+        reply:""
       };
+      
       const response = await fetch(API_URL + `/api/messages/${id}`, {
         method: "POST",
         headers: {
@@ -123,12 +134,30 @@ const OnlineChat = ({ navigation, route }) => {
         body: JSON.stringify({ data: data }),
       });
       const res = await response.json();
+      data.createAt = res.data.createAt;
       socket.emit("message", data, res.data._id);
     }
 
     setMessage("");
   };
-
+  useEffect(() => {
+    socket.on('message', async (message) => {
+      const newMessage = {
+        id: message.id,
+        content: message.content,
+        sent: message.senderId,
+        isSent: message.senderId === await SecureStore.getItemAsync('userId'),
+        reply: message.reply,
+        senderName: message.senderName,
+        avatarSender: message.avatarSender,
+        time: message.time,
+        type: message.type,
+        media: message.media,
+        pin:message.pin,
+      }
+      setMessages([...messages, newMessage]);
+    })
+  }, [messages]);
   const handleReaction = async (reaction) => {
     const token = await SecureStore.getItemAsync("authToken");
     const data = {
@@ -146,18 +175,18 @@ const OnlineChat = ({ navigation, route }) => {
       }
     );
     const res = await response.json();
-    if (res.status === 200) {
-      socket.emit("react message", {
-        chatRoomId: id,
-        messageId: selectedMessageId,
-        reactions: res.data.data.reactions,
-      });
-    }
+    console.log("react message", res.data, id);
+    socket.emit("react message", {
+      chatRoomId: id,
+      messageId: res.data._id,
+      reactions: res.data.reactions,
+    });
     setModalVisible(false);
   };
 
   useEffect(() => {
     socket.on("react message", (message) => {
+      console.log("react message", message);
       setMessages((prevMessages) =>
         prevMessages.map((m) =>
           m.id === message.messageId
@@ -167,6 +196,7 @@ const OnlineChat = ({ navigation, route }) => {
       );
     });
   }, [socket]);
+
 
   const convertReaction = (reaction) => {
     switch (reaction) {
@@ -197,6 +227,7 @@ const OnlineChat = ({ navigation, route }) => {
 
     if (!result.cancelled) {
       setSelectedImage(result.assets[0].uri);
+      console.log("URII",result.assets[0].uri);
     }
   };
 
@@ -213,10 +244,20 @@ const OnlineChat = ({ navigation, route }) => {
       type: type,
     };
 
+    console.log("file",file);
+
     formData.append("media", file);
     formData.append("content", content);
     formData.append("chatRoomId", chatRoomId);
-
+    console.log("Formdata",formData);
+    const data = {
+      chatRoomId: chatRoomId,
+      senderId: `"${await SecureStore.getItemAsync("userId")}"`,
+      content: content,
+      type: "image",
+      reply:"",
+    };
+    console.log(data);
     try {
       const token = await SecureStore.getItemAsync("authToken");
       const response = await fetch(API_URL + "/api/send-media", {
@@ -233,11 +274,30 @@ const OnlineChat = ({ navigation, route }) => {
       }
 
       const responseData = await response.json();
+      console.log("Response data",responseData.data);
+      responseData.data.forEach(async (mediaData) => {
+        const data = {
+            chatRoomId: id,
+            senderId: `"${await SecureStore.getItemAsync("userId")}"`,
+            content: content,
+            media: mediaData.media,
+            type: mediaData.type,
+            reply:"",
+        };
+        console.log("Data",data);
+        socket.emit('message', data, mediaData._id);
+      });
     } catch (error) {
       console.error("Failed to send media:", error);
     }
   };
 
+  useEffect(() => {
+    socket.emit('join chat', id, `"${userId}"`);
+    socket.on('joined chat', (room) => {
+      console.log('joined chat', room);
+    });
+  }, [id]);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -252,8 +312,14 @@ const OnlineChat = ({ navigation, route }) => {
             />
           </TouchableOpacity>
           <View style={styles.userInfo}>
-            <Text style={styles.username}>Kiều Dương</Text>
-            <Text style={styles.lastSeen}>Truy cập 2 phút trước</Text>
+            <Text style={styles.username}> {user.displayName ? user.displayName : user.name} </Text>
+            <Text style={styles.lastSeen}> {!user.members
+                    ? user.isOnline
+                      ? "Active"
+                      : `Active ${formatTime(
+                          Date.now() - Date.parse(user.lastOnlineTime)
+                        )}`
+                    : `${user.members.length} members`}</Text>
           </View>
           <View style={styles.actionButtons}>
             <TouchableOpacity>
@@ -268,7 +334,7 @@ const OnlineChat = ({ navigation, route }) => {
                 style={{ marginTop: 2, marginRight: 20 }}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleModal}>
+            <TouchableOpacity>
               <Image source={require("../assets/menu.png")} style={{}} />
             </TouchableOpacity>
           </View>
@@ -310,11 +376,11 @@ const OnlineChat = ({ navigation, route }) => {
                     <SafeAreaView
                       style={{ display: "flex", flexDirection: "row" }}
                     >
-                      {!message.sent && (
+                      {!message.isSent && (
                         <Image
                           source={{
-                            uri: message.receiverPhoto
-                              ? message.receiverPhoto
+                            uri: message.avatarSender
+                              ? message.avatarSender
                               : "https://i.imgur.com/rsJjBcH.png",
                           }}
                           style={{
@@ -364,13 +430,15 @@ const OnlineChat = ({ navigation, route }) => {
                               : message.content}
                           </Text>
                         )}
-                        <Text style={{ paddingTop: 5 }}>{message.time}</Text>
+                        <Text style={{ paddingTop: 5 ,display: "flex", flexDirection: "row", }}>{!message.hided && !message.unsent && message.time}</Text>
+                        <View style={{ paddingTop: 5, display: "flex", flexDirection: "row", }}>
                         {message.reactions &&
                           message.reactions.map((reaction, index) => (
                             <Text key={index}>
                               {convertReaction(reaction.reaction)}
                             </Text>
                           ))}
+                          </View>
                       </SafeAreaView>
                     </SafeAreaView>
                   </SafeAreaView>
@@ -379,7 +447,9 @@ const OnlineChat = ({ navigation, route }) => {
             ))}
         </ScrollView>
 
-        <View style={{ backgroundColor: "#fff", padding: 11, flexDirection: "row" }}>
+        <View
+          style={{ backgroundColor: "#fff", padding: 11, flexDirection: "row" }}
+        >
           <View style={{ width: "80%" }}>
             <TextInput
               placeholder="Tin nhắn"
@@ -466,11 +536,14 @@ const OnlineChat = ({ navigation, route }) => {
               <Text style={{ fontSize: 40 }}>❌</Text>
             </TouchableOpacity>
           </View>
-          {messages
+          <View >
+            {messages
             ?.find((m) => m.id === selectedMessageId)
             ?.reactions.map((reaction, index) => (
               <Text key={index}>{convertReaction(reaction)}</Text>
             ))}
+          </View>
+          
         </Modal>
 
         <Modal isVisible={selectedImageUri !== null}>
@@ -490,36 +563,15 @@ const OnlineChat = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
         </Modal>
-
-        <Modal isVisible={show}>
-  <View style={styles.modalContent}>
-    <Text style={styles.modalText}>User Profile</Text>
-    <Image source={{ uri: userInfo.avatar }} style={styles.avatar} />
-    <Text style={styles.modalText}>Name: {userInfo.name}</Text>
-    <Text style={styles.modalText}>Email: {userInfo.email}</Text>
-    <Text style={styles.modalText}>Phone: {userInfo.phone}</Text>
-    <Text style={styles.modalText}>Date of Birth: {userInfo.dob}</Text>
-    <Text style={styles.modalText}>Manual Group: {userInfo.countCommonGroup}</Text>
-    <TouchableOpacity style={styles.closeButton} onPress={() => setShow(false)}>
-      <Text style={{ color: 'white' }}>Close</Text>
-    </TouchableOpacity>
-  </View>
-</Modal>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
-
+//
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F1FFFA",
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50, // Đảm bảo hình ảnh là hình tròn bằng cách sử dụng nửa chiều cao của nó
-    marginBottom: 10, // Khoảng cách giữa hình ảnh và các phần tử khác
   },
   header: {
     flexDirection: "row",
@@ -548,23 +600,6 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: "row",
     alignItems: "flex-end",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 4,
-    borderColor: "rgba(0, 0, 0, 0.1)",
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  closeButton: {
-    backgroundColor: "#00AE72",
-    padding: 10,
-    borderRadius: 5,
   },
 });
 

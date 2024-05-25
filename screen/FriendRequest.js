@@ -91,6 +91,7 @@ const FriendRequest = ({ navigation }) => {
       console.error(`Error: ${error.message}`);
     }
   };
+  
 
   const handleAcceptFriend = (email) => {
     acceptFriend(email);

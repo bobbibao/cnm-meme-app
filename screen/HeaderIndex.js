@@ -26,6 +26,7 @@ export default HeaderIndex = ({ navigation }) => {
     "https://res.cloudinary.com/dpigoorhc/image/upload/f_auto,q_auto/v1/onlyfan/index/Icon/pyhiltqmgy54j36rwf3z",
   ];
 
+  
   const defaultImage = 'https://res.cloudinary.com/dpigoorhc/image/upload/v1699298966/onlyfan/index/Icon/klasfpxswxaglw2ujbtn.png';
 
   const [showModal, setShowModal] = useState(false);

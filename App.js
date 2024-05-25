@@ -19,6 +19,9 @@ import Register from "./screen/Register";
 import SendResetPasswordOTP from "./screen/SendResetPasswordOTP";
 import VerifyResetPasswordOTP from "./screen/VerifyResetPasswordOTP";
 import UpdatePassword from "./screen/UpdatePassword";
+
+import Profile from "./screen/Profile";
+
 export default function App() {
   const Stack = createNativeStackNavigator();
   const MyTheme = {
@@ -43,6 +46,7 @@ export default function App() {
         <Stack.Screen name="Footer" component={Footer} />
         <Stack.Screen name="Index" component={Index} />
         <Stack.Screen name="AllPeople" component={AllPeople} />
+        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="CallList" component={CallList} />
         <Stack.Screen name="FriendRequest" component={FriendRequest} />
         <Stack.Screen name="SendFriendRequest" component={SendFriendRequest} />

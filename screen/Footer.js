@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import AllPeople from "./AllPeople";
 import Index from "./Index";
+import Profile from "./Profile";
 export default Footer = ({ navigation }) => {
   const AllPeople = () => {
     navigation.navigate("AllPeople");
@@ -21,6 +22,9 @@ export default Footer = ({ navigation }) => {
     navigation.navigate("CallList");
   };
 
+  const Profile = () => {
+    navigation.navigate("Profile");
+  }
   let footer__imgs = [
     "https://cdn-icons-png.freepik.com/512/273/273696.png",
     "https://cdn-icons-png.flaticon.com/512/2118/2118701.png",
@@ -47,7 +51,7 @@ export default Footer = ({ navigation }) => {
           <Text style={{ marginTop: 0 }}>Danh bạ</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => CallList()} style={styles.touchable}>
+      <TouchableOpacity onPress={() => Profile()} style={styles.touchable}>
         <View style={styles.iconContainer}>
           <Image
             source={{ uri: footer__imgs[2] }}

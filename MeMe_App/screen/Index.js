@@ -35,7 +35,7 @@ const Index = ({ navigation, route }) => {
   const setupSocket = async () => {
     socket = io(API_URL);
     socket.on("connection", ()=>{
-      console.log("Socket connected 123");
+      console.log("Socket connected");
     })
     const userId = await SecureStore.getItemAsync("userId");
     socket.emit("setup", `"${userId}"`);
@@ -57,7 +57,7 @@ const Index = ({ navigation, route }) => {
     "https://i.pinimg.com/originals/c6/2e/0d/c62e0d3e9a34c74e84a0f7f952ce3695.jpg",
     "https://i.pinimg.com/236x/db/8d/48/db8d4877d92d07b4028d19f4c367ab50.jpg",
   ];
-
+  
   const names = [
     "Kiều Dương",
     "Huỳnh Thắng",
@@ -84,10 +84,10 @@ const Index = ({ navigation, route }) => {
       console.log("joined",room);
     });
     socket.on("message", (message)=>{
-      userId != message.senderId && schedulePushNotification("Thuy Duong", message.content);
+      userId != message.senderId && schedulePushNotification(message.senderName, message.content || "Đã gửi một link đính kèm");
       const index = userInfo.findIndex((user) => user.idChatRoom === idChatRoom);
       userInfo[index].lastMessage.text = message.content;
-      userInfo[index].lastMessage.time = message.time;
+      userInfo[index].lastMessage.createAt = message.createAt;
       setUserInfo([...userInfo]);
     });
     navigation.navigate("OnlineChat", {idChatRoom, socket});
@@ -148,7 +148,7 @@ const [expoPushToken, setExpoPushToken] = useState('');
                 <Text style={styles.chatContent}>{user.lastMessage.text}</Text>
               </View>
               <View style={styles.timeContainer}>
-                <Text>{user.lastMessage.time}</Text>
+                <Text>{user.lastMessage.createAt}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginHorizontal: 10,
     marginTop: 10,
+    marginBottom: 10,
     height: 70,
   },
   chatContainer: {
@@ -228,6 +229,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingBottom: 10,
   },
   userName: {
     fontSize: 20,

@@ -20,7 +20,6 @@ function Register({ navigation, route }) {
   const [show, setShow] = useState(false);
   const [mode, setMode] = useState("date");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
- 
   
 
   const onChange = (event, selectedDate) => {
