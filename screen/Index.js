@@ -76,7 +76,6 @@ const Index = ({ navigation, route }) => {
     "Nguyễn Đình Hòa",
     "Trần Văn Bình",
   ];
-
   const OnlineChat = async (idChatRoom) => {
     const userId = await SecureStore.getItemAsync("userId");
     socket.emit('join chat', idChatRoom, `"${userId}"`);
