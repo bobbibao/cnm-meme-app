@@ -2,6 +2,10 @@
 
 Chat App is a mobile application for 1-1 and group chatting built with React Native. Below are instructions on how to set up and run the project on your device (Android and IOS).
 
+- BackEnd:   https://github.com/bobbibao/cnm-meme-be.git (Demo web and mobile)
+- FrontEnd:  https://github.com/bobbibao/cnm-meme-fe.git
+- Mobile:    https://github.com/bobbibao/cnm-meme-app.git 
+- 
 ## System Requirements
 
 - [Node.js](https://nodejs.org/) version 20 or higher
